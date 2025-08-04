@@ -31,6 +31,15 @@ namespace StokTakip.Data.Concrete.EFcore.Contexts
         {
             modelBuilder.ApplyConfiguration(new DepoMap());
             modelBuilder.ApplyConfiguration(new MalzemeMap());
+            modelBuilder.ApplyConfiguration(new CariMap());
+            modelBuilder.ApplyConfiguration(new DepoTransferMap());
+            modelBuilder.ApplyConfiguration(new DepoTransferDetayMap());
+            modelBuilder.ApplyConfiguration(new IrsaliyeMap());
+            modelBuilder.ApplyConfiguration(new IrsaliyeDetayMap());
+            modelBuilder.ApplyConfiguration(new StokMap());
+            modelBuilder.ApplyConfiguration(new LogTakipMap());
+            modelBuilder.ApplyConfiguration(new KullaniciMap());
+
         }
     }
 }
