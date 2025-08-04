@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StokTakip.Data.Concrete.EFcore.Mapping;
 using StokTakip.Entities.Concrete;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,11 @@ namespace StokTakip.Data.Concrete.EFcore.Contexts
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(connectionString: @"Data Source=MAHMUT\\MSSQLSERVER1;Initial Catalog=StokDb;Integrated Security=True;Trust Server Certificate=True");
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new DepoMap());
+            modelBuilder.ApplyConfiguration(new MalzemeMap());
         }
     }
 }

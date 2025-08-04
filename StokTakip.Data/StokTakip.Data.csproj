@@ -11,8 +11,4 @@
     <ProjectReference Include="..\StokTakip.Shared\StokTakip.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Concrete\EFcore\Mapping\" />
-  </ItemGroup>
-
 </Project>
