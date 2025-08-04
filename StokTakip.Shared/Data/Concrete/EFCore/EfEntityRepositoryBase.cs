@@ -64,9 +64,9 @@ namespace StokTakip.Shared.Data.Concrete.EFCore
             query=query.Where(predicate);
             if (includeProperties.Any())
             {
-                foreach (var include in includeProperties)
+                foreach (var item in includeProperties)
                 {
-                    query = query.Include(include);
+                    query = query.Include(item);
                 }
             }
             return await query.SingleOrDefaultAsync();
