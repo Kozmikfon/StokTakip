@@ -19,17 +19,17 @@ namespace StokTakip.Shared.Data.Concrete.EFCore
         }
         public async Task<TEntity> AddAsync(TEntity entity)
         {
-            await _context.Set<TEntity>().AddAsync(entity);
+            await _context.Set<TEntity>().AddAsync(entity); //entitynin dbsetine erişiyoruz ama saveChanges burada olmuyor.
             return entity;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
         {
             
-            return await _context.Set<TEntity>().AnyAsync(predicate);
+            return await _context.Set<TEntity>().AnyAsync(predicate);//belirli bir şartı sağlayan kayıt var mı?
         }
 
-        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate) //belirli bir koşula ait kaç kayıt var?
         {
              return await _context.Set<TEntity>().CountAsync(predicate);
 
