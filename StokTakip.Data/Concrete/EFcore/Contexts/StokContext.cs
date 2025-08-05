@@ -25,7 +25,7 @@ namespace StokTakip.Data.Concrete.EFcore.Contexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(connectionString: @"Data Source=MAHMUT\\MSSQLSERVER1;Initial Catalog=StokDb;Integrated Security=True;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer(connectionString: @"Data Source=MAHMUT\MSSQLSERVER1;Initial Catalog=StokTakipDb;Integrated Security=True;Trust Server Certificate=True");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
