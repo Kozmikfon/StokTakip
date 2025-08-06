@@ -11,6 +11,10 @@ namespace StokTakip.Data.Concrete.EFcore.Contexts
 {
     public class StokContext : DbContext
     {
+        public StokContext(DbContextOptions<StokContext> opt): base(opt)
+        {
+            
+        }
         public DbSet<Malzeme> malzemeler { get; set; }
         public DbSet<Depo> depolar { get; set; }
         public DbSet<Stok> stoklar { get; set; }

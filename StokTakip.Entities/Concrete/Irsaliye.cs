@@ -13,8 +13,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class Irsaliye : EntityBase, IEntity
     {
-        [Key]
-        public int irsaliyeId { get; set; }
+        //[Key]
+        //public int irsaliyeId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("İrsaliye Numarası:")]

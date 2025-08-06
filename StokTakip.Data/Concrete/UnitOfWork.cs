@@ -51,7 +51,7 @@ namespace StokTakip.Data.Concrete
 
         public async ValueTask DisposeAsync()
         {
-            await _context.DisposeAsync();
+            await _context.DisposeAsync();//veritabanı bağlantısını kapatılır
         }
 
         public async Task<int> SaveAsync()

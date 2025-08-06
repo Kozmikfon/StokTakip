@@ -11,8 +11,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class Cari : EntityBase, IEntity
     {
-        [Key]
-        public int carId { get; set; }
+        //[Key]
+        //public int carId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [MaxLength(100)]

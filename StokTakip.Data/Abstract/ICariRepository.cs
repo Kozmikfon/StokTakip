@@ -10,5 +10,6 @@ namespace StokTakip.Data.Abstract
 {
     public interface ICariRepository : IEntityRepository<Cari>
     {
+        //özel metotları burada tanımlayabiliriz
     }
 }

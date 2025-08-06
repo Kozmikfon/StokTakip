@@ -11,8 +11,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class Depo : EntityBase,IEntity
     {
-        [Key]
-        public int depoId { get; set; }
+        //[Key]
+        //public int depoId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [StringLength(100)]

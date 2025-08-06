@@ -9,7 +9,9 @@ builder.Services.AddControllersWithViews();
 //builder.Services.AddDbContext<StokContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+builder.Services.AddDbContext<StokContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+    sqlServerOptions => sqlServerOptions.MigrationsAssembly("StokTakip.Data")));
 
 var app = builder.Build();
 

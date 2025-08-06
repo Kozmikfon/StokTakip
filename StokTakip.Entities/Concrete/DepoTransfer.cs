@@ -12,8 +12,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class DepoTransfer : EntityBase , IEntity
     {
-        [Key]
-        public int transferId { get; set; }
+        //[Key]
+        //public int transferId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
 

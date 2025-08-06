@@ -13,8 +13,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class LogTakip : EntityBase,IEntity
     {
-        [Key]
-        public int islemId { get; set; }
+        //[Key]
+        //public int islemId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("Tablo Adı:")]

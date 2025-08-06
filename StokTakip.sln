@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StokTakip.Data", "StokTakip
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StokTakip.Service", "StokTakip.Service\StokTakip.Service.csproj", "{363F4677-E17E-4BD4-879D-4FF5B977E909}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StokTakip.WebUI", "StokTakip.WebUI\StokTakip.WebUI.csproj", "{674D4C08-A967-4CC9-B80E-D3242D24245B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StokTakip.MVC", "StokTakip.MVC\StokTakip.MVC.csproj", "{90802539-30E8-49B5-9864-0213D32DF777}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StokTakip.Shared", "StokTakip.Shared\StokTakip.Shared.csproj", "{F8BDFCB6-D8AE-4456-AC5D-183AF43EBAB6}"
@@ -33,10 +31,6 @@ Global
 		{363F4677-E17E-4BD4-879D-4FF5B977E909}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{363F4677-E17E-4BD4-879D-4FF5B977E909}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{363F4677-E17E-4BD4-879D-4FF5B977E909}.Release|Any CPU.Build.0 = Release|Any CPU
-		{674D4C08-A967-4CC9-B80E-D3242D24245B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{674D4C08-A967-4CC9-B80E-D3242D24245B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{674D4C08-A967-4CC9-B80E-D3242D24245B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{674D4C08-A967-4CC9-B80E-D3242D24245B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90802539-30E8-49B5-9864-0213D32DF777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{90802539-30E8-49B5-9864-0213D32DF777}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90802539-30E8-49B5-9864-0213D32DF777}.Release|Any CPU.ActiveCfg = Release|Any CPU

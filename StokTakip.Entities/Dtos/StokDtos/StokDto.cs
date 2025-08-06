@@ -1,43 +1,39 @@
 ﻿using StokTakip.Entities.Enums;
-using StokTakip.Shared.Entities.Abstract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StokTakip.Entities.Concrete
+namespace StokTakip.Entities.Dtos.StokDtos
 {
-    public class Stok : EntityBase,IEntity
+    public class StokDto
     {
-        //[Key]
-        //public int HareketId { get; set; }
-
-        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        [Required(ErrorMessage = "Malzeme ID boş geçilemez")]
         [DisplayName("Malzeme Numarası:")]
         public int MalzemeId { get; set; }
 
-        [ForeignKey(nameof(MalzemeId))]
-        public Malzeme? Malzeme { get; set; }
+        [DisplayName("Malzeme Adı:")]
+        public string? MalzemeAdi { get; set; } // JOIN ile listelemede gösterim için
 
-        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        [Required(ErrorMessage = "Depo ID boş geçilemez")]
         [DisplayName("Depo Numarası:")]
         public int DepoId { get; set; }
 
-        [ForeignKey(nameof(DepoId))]
-        public Depo? Depo { get; set; }
+        [DisplayName("Depo Adı:")]
+        public string? DepoAdi { get; set; }
 
-        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        [Required(ErrorMessage = "Hareket Tarihi boş geçilemez")]
         [DisplayName("Hareket Tarihi:")]
         public DateTime HareketTarihi { get; set; }
 
-        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        [Required(ErrorMessage = "Miktar boş geçilemez")]
+        [DisplayName("Miktar:")]
         public decimal Miktar { get; set; }
 
-        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        [Required(ErrorMessage = "Hareket Tipi boş geçilemez")]
         [DisplayName("Hareket Tipi:")]
         public StokHareketTipi HareketTipi { get; set; }
 
@@ -47,12 +43,11 @@ namespace StokTakip.Entities.Concrete
         [DisplayName("Açıklama:")]
         public string? Aciklama { get; set; }
 
-
+        [DisplayName("Cari ID:")]
         public int? carId { get; set; }
 
-        [ForeignKey(nameof(carId))]
-        public Cari? cari { get; set; }
-
+        [DisplayName("Cari Ünvan:")]
+        public string? CariUnvan { get; set; }
 
         [DisplayName("Seri Numarası:")]
         public string? SeriNo { get; set; }

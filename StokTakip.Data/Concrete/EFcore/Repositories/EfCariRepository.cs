@@ -15,6 +15,7 @@ namespace StokTakip.Data.Concrete.EFcore.Repositories
     {
         public EfCariRepository(DbContext context) : base(context)
         {
+
         }
     }
 }

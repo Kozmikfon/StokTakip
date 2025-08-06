@@ -11,8 +11,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class Malzeme : EntityBase, IEntity
     {
-        [Key]
-        public int malzemeId { get; set; }
+        //[Key]
+        //public int malzemeId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("Malzeme İsmi:")]
