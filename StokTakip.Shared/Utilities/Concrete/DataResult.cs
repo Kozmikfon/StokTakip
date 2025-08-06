@@ -20,8 +20,7 @@ namespace StokTakip.Shared.Utilities.Concrete
         {
             ResultStatus = resultStatus;
             Info = info;
-            Data = data;
-            
+            Data = data;            
         }
         public DataResult(ResultStatus resultStatus, string info, T data, Exception exception)
         {

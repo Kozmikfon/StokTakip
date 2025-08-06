@@ -27,4 +27,8 @@
     <ProjectReference Include="..\StokTakip.Shared\StokTakip.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
 </Project>
