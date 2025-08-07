@@ -2,6 +2,7 @@
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.CariDtos;
 using StokTakip.Entities.Dtos.DepoDtos;
+using StokTakip.Entities.Dtos.MalzemeDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,11 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<Depo,DepoDto>().ReverseMap();
             CreateMap<Depo, DepoUpdateDto>().ReverseMap();
             CreateMap<Depo, DepoCreateDto>().ReverseMap();
+
+            //malzeme
+            CreateMap<Malzeme,MalzemeDto>().ReverseMap();
+            CreateMap<Malzeme, MalzemeCreateDto>().ReverseMap();
+            CreateMap<Malzeme, MalzemeListDto>().ReverseMap();
 
         }
     }
