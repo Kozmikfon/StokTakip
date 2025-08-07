@@ -2,6 +2,8 @@
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.CariDtos;
 using StokTakip.Entities.Dtos.DepoDtos;
+using StokTakip.Entities.Dtos.IrsaliyeDetayDtos;
+using StokTakip.Entities.Dtos.IrsaliyeDtos;
 using StokTakip.Entities.Dtos.MalzemeDtos;
 using System;
 using System.Collections.Generic;
@@ -30,6 +32,14 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<Malzeme, MalzemeCreateDto>().ReverseMap();
             CreateMap<Malzeme, MalzemeListDto>().ReverseMap();
 
+            //irsaliye
+            CreateMap<Irsaliye, IrsaliyeDto>().ReverseMap();
+            CreateMap<Irsaliye, IrsaliyeCreateDto>().ReverseMap();
+            CreateMap<Irsaliye, IrsaliyeListDto>().ReverseMap();
+
+            //irsaliyeDetay
+            CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>().ReverseMap();
+            CreateMap<IrsaliyeDetay, IrsaliyeDetayCreateDto>().ReverseMap();
         }
     }
 }

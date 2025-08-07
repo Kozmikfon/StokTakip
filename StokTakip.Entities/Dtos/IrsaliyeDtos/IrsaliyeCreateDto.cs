@@ -29,7 +29,7 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
 
         [Required]
         [DisplayName("İrsaliye Tipi:")]
-        public StokHareketTipi IrsaliyeTipi { get; set; }
+        public IrsaliyeTipi IrsaliyeTipi { get; set; }
 
         [DisplayName("Açıklama:")]
         public string? Aciklama { get; set; }

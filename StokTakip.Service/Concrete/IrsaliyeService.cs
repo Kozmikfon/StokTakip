@@ -1,6 +1,11 @@
-﻿using StokTakip.Entities.Dtos.IrsaliyeDtos;
+﻿using AutoMapper;
+using StokTakip.Data.Concrete;
+using StokTakip.Entities.Concrete;
+using StokTakip.Entities.Dtos.IrsaliyeDtos;
 using StokTakip.Service.Abstract;
 using StokTakip.Shared.Utilities.Abstract;
+using StokTakip.Shared.Utilities.ComplexTypes;
+using StokTakip.Shared.Utilities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +16,25 @@ namespace StokTakip.Service.Concrete
 {
     public class IrsaliyeService : IIrsaliyeService
     {
-        public Task<IDataResult<IrsaliyeDto>> Create(IrsaliyeCreateDto irsaliyeCreateDto)
+        private readonly UnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+
+        public IrsaliyeService(UnitOfWork unitOfWork, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }   
+
+        public async Task<IDataResult<IrsaliyeDto>> Create(IrsaliyeCreateDto irsaliyeCreateDto)
+        {
+            
+                var entity = _mapper.Map<Irsaliye>(irsaliyeCreateDto);
+                var added=await _unitOfWork.Irsaliye.AddAsync(entity);
+                await _unitOfWork.SaveAsync();
+
+                var result = _mapper.Map<IrsaliyeDto>(added);
+                return new DataResult<IrsaliyeDto>(ResultStatus.Success, result);
+            
         }
 
         public Task<IResult> Delete(int id)

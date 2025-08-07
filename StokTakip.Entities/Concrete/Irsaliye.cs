@@ -35,7 +35,8 @@ namespace StokTakip.Entities.Concrete
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("İrsaliye Tipi:")]
-        public Enums.StokHareketTipi irsaliyeTipi { get; set; }
+        public Enums.IrsaliyeTipi irsaliyeTipi { get; set; }
+
 
         [DisplayName("Açıklama:")]
         public string? aciklama { get; set; }
