@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StokTakip.Data.Concrete.EFcore.Contexts;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
