@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace StokTakip.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class enes1 : Migration
+    public partial class Dtos : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,7 +43,7 @@ namespace StokTakip.Data.Migrations
                 name: "Cariler",
                 columns: table => new
                 {
-                    carId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     unvan = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     telefon = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
@@ -51,7 +51,6 @@ namespace StokTakip.Data.Migrations
                     adres = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     vergiNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     vergiDairesi = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -61,20 +60,19 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cariler", x => x.carId);
+                    table.PrimaryKey("PK_Cariler", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Depolar",
                 columns: table => new
                 {
-                    depoId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     depoAd = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     rafBilgisi = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     aciklama = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     konumBilgisi = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -84,20 +82,19 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Depolar", x => x.depoId);
+                    table.PrimaryKey("PK_Depolar", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "kullanicilar",
                 columns: table => new
                 {
-                    kullaniciId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     adSoyad = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     olusturulmaTarihi = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -107,14 +104,14 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_kullanicilar", x => x.kullaniciId);
+                    table.PrimaryKey("PK_kullanicilar", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Malzemeler",
                 columns: table => new
                 {
-                    malzemeId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     malzemeAdi = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     birim = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -123,7 +120,6 @@ namespace StokTakip.Data.Migrations
                     barkodNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     aktifPasif = table.Column<bool>(type: "bit", nullable: false),
                     aciklama = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -133,21 +129,20 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Malzemeler", x => x.malzemeId);
+                    table.PrimaryKey("PK_Malzemeler", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "logTakipler",
                 columns: table => new
                 {
-                    islemId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     tabloAdi = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     islemTipi = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     islemTarihi = table.Column<DateTime>(type: "datetime2", nullable: false),
                     detay = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     AppUserId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -157,7 +152,7 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_logTakipler", x => x.islemId);
+                    table.PrimaryKey("PK_logTakipler", x => x.Id);
                     table.ForeignKey(
                         name: "FK_logTakipler_AppUser_AppUserId",
                         column: x => x.AppUserId,
@@ -170,7 +165,7 @@ namespace StokTakip.Data.Migrations
                 name: "depoTransferleri",
                 columns: table => new
                 {
-                    transferId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     transferNo = table.Column<int>(type: "int", nullable: false),
                     kaynakDepoId = table.Column<int>(type: "int", nullable: false),
@@ -178,7 +173,6 @@ namespace StokTakip.Data.Migrations
                     transferTarihi = table.Column<DateTime>(type: "datetime2", nullable: false),
                     aciklama = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     seriNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -188,18 +182,18 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_depoTransferleri", x => x.transferId);
+                    table.PrimaryKey("PK_depoTransferleri", x => x.Id);
                     table.ForeignKey(
                         name: "FK_depoTransferleri_Depolar_hedefDepoId",
                         column: x => x.hedefDepoId,
                         principalTable: "Depolar",
-                        principalColumn: "depoId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_depoTransferleri_Depolar_kaynakDepoId",
                         column: x => x.kaynakDepoId,
                         principalTable: "Depolar",
-                        principalColumn: "depoId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -207,7 +201,7 @@ namespace StokTakip.Data.Migrations
                 name: "irsaliyeler",
                 columns: table => new
                 {
-                    irsaliyeId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     irsaliyeNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     carId = table.Column<int>(type: "int", nullable: false),
@@ -217,7 +211,6 @@ namespace StokTakip.Data.Migrations
                     aciklama = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     durum = table.Column<bool>(type: "bit", nullable: false),
                     depoId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -227,18 +220,18 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_irsaliyeler", x => x.irsaliyeId);
+                    table.PrimaryKey("PK_irsaliyeler", x => x.Id);
                     table.ForeignKey(
                         name: "FK_irsaliyeler_Cariler_carId",
                         column: x => x.carId,
                         principalTable: "Cariler",
-                        principalColumn: "carId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_irsaliyeler_Depolar_depoId",
                         column: x => x.depoId,
                         principalTable: "Depolar",
-                        principalColumn: "depoId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -246,7 +239,7 @@ namespace StokTakip.Data.Migrations
                 name: "Stoklar",
                 columns: table => new
                 {
-                    HareketId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MalzemeId = table.Column<int>(type: "int", nullable: false),
                     DepoId = table.Column<int>(type: "int", nullable: false),
@@ -257,7 +250,6 @@ namespace StokTakip.Data.Migrations
                     Aciklama = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     carId = table.Column<int>(type: "int", nullable: true),
                     SeriNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -267,24 +259,24 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Stoklar", x => x.HareketId);
+                    table.PrimaryKey("PK_Stoklar", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Stoklar_Cariler_carId",
                         column: x => x.carId,
                         principalTable: "Cariler",
-                        principalColumn: "carId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Stoklar_Depolar_DepoId",
                         column: x => x.DepoId,
                         principalTable: "Depolar",
-                        principalColumn: "depoId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Stoklar_Malzemeler_MalzemeId",
                         column: x => x.MalzemeId,
                         principalTable: "Malzemeler",
-                        principalColumn: "malzemeId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -292,12 +284,11 @@ namespace StokTakip.Data.Migrations
                 name: "depoTransferDetaylari",
                 columns: table => new
                 {
-                    detayId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     transferId = table.Column<int>(type: "int", nullable: false),
                     malzemeId = table.Column<int>(type: "int", nullable: false),
                     miktar = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -307,18 +298,18 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_depoTransferDetaylari", x => x.detayId);
+                    table.PrimaryKey("PK_depoTransferDetaylari", x => x.Id);
                     table.ForeignKey(
                         name: "FK_depoTransferDetaylari_Malzemeler_malzemeId",
                         column: x => x.malzemeId,
                         principalTable: "Malzemeler",
-                        principalColumn: "malzemeId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_depoTransferDetaylari_depoTransferleri_transferId",
                         column: x => x.transferId,
                         principalTable: "depoTransferleri",
-                        principalColumn: "transferId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -326,7 +317,7 @@ namespace StokTakip.Data.Migrations
                 name: "irsaliyeDetaylari",
                 columns: table => new
                 {
-                    detayId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     irsaliyeId = table.Column<int>(type: "int", nullable: false),
                     malzemeId = table.Column<int>(type: "int", nullable: false),
@@ -334,7 +325,6 @@ namespace StokTakip.Data.Migrations
                     birimFiyat = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     araToplam = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     seriNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -344,18 +334,18 @@ namespace StokTakip.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_irsaliyeDetaylari", x => x.detayId);
+                    table.PrimaryKey("PK_irsaliyeDetaylari", x => x.Id);
                     table.ForeignKey(
                         name: "FK_irsaliyeDetaylari_Malzemeler_malzemeId",
                         column: x => x.malzemeId,
                         principalTable: "Malzemeler",
-                        principalColumn: "malzemeId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_irsaliyeDetaylari_irsaliyeler_irsaliyeId",
                         column: x => x.irsaliyeId,
                         principalTable: "irsaliyeler",
-                        principalColumn: "irsaliyeId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 

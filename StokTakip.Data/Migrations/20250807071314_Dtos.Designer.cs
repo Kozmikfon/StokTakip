@@ -12,8 +12,8 @@ using StokTakip.Data.Concrete.EFcore.Contexts;
 namespace StokTakip.Data.Migrations
 {
     [DbContext(typeof(StokContext))]
-    [Migration("20250805112715_enes1")]
-    partial class enes1
+    [Migration("20250807071314_Dtos")]
+    partial class Dtos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,11 @@ namespace StokTakip.Data.Migrations
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.Cari", b =>
                 {
-                    b.Property<int>("carId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("carId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -39,9 +39,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -85,18 +82,18 @@ namespace StokTakip.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("carId");
+                    b.HasKey("Id");
 
                     b.ToTable("Cariler", (string)null);
                 });
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.Depo", b =>
                 {
-                    b.Property<int>("depoId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("depoId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -104,9 +101,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -138,18 +132,18 @@ namespace StokTakip.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("depoId");
+                    b.HasKey("Id");
 
                     b.ToTable("Depolar", (string)null);
                 });
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.DepoTransfer", b =>
                 {
-                    b.Property<int>("transferId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("transferId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -157,9 +151,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -194,7 +185,7 @@ namespace StokTakip.Data.Migrations
                     b.Property<DateTime>("transferTarihi")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("transferId");
+                    b.HasKey("Id");
 
                     b.HasIndex("hedefDepoId");
 
@@ -205,11 +196,11 @@ namespace StokTakip.Data.Migrations
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.DepoTransferDetay", b =>
                 {
-                    b.Property<int>("detayId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("detayId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -217,9 +208,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -243,7 +231,7 @@ namespace StokTakip.Data.Migrations
                     b.Property<int>("transferId")
                         .HasColumnType("int");
 
-                    b.HasKey("detayId");
+                    b.HasKey("Id");
 
                     b.HasIndex("malzemeId");
 
@@ -254,11 +242,11 @@ namespace StokTakip.Data.Migrations
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.Irsaliye", b =>
                 {
-                    b.Property<int>("irsaliyeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("irsaliyeId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -266,9 +254,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -310,7 +295,7 @@ namespace StokTakip.Data.Migrations
                     b.Property<decimal>("toplamTutar")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("irsaliyeId");
+                    b.HasKey("Id");
 
                     b.HasIndex("carId");
 
@@ -321,11 +306,11 @@ namespace StokTakip.Data.Migrations
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.IrsaliyeDetay", b =>
                 {
-                    b.Property<int>("detayId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("detayId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -333,9 +318,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -369,7 +351,7 @@ namespace StokTakip.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("detayId");
+                    b.HasKey("Id");
 
                     b.HasIndex("irsaliyeId");
 
@@ -380,11 +362,11 @@ namespace StokTakip.Data.Migrations
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.Kullanici", b =>
                 {
-                    b.Property<int>("kullaniciId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("kullaniciId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -392,9 +374,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -427,18 +406,18 @@ namespace StokTakip.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("kullaniciId");
+                    b.HasKey("Id");
 
                     b.ToTable("kullanicilar", (string)null);
                 });
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.LogTakip", b =>
                 {
-                    b.Property<int>("islemId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("islemId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AppUserId")
                         .HasColumnType("int");
@@ -449,9 +428,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -483,7 +459,7 @@ namespace StokTakip.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("islemId");
+                    b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
 
@@ -492,11 +468,11 @@ namespace StokTakip.Data.Migrations
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.Malzeme", b =>
                 {
-                    b.Property<int>("malzemeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("malzemeId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedByName")
                         .IsRequired()
@@ -504,9 +480,6 @@ namespace StokTakip.Data.Migrations
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -550,18 +523,18 @@ namespace StokTakip.Data.Migrations
                     b.Property<int>("minStokMiktar")
                         .HasColumnType("int");
 
-                    b.HasKey("malzemeId");
+                    b.HasKey("Id");
 
                     b.ToTable("Malzemeler", (string)null);
                 });
 
             modelBuilder.Entity("StokTakip.Entities.Concrete.Stok", b =>
                 {
-                    b.Property<int>("HareketId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HareketId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aciklama")
                         .HasMaxLength(500)
@@ -581,9 +554,6 @@ namespace StokTakip.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("HareketTipi")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -615,7 +585,7 @@ namespace StokTakip.Data.Migrations
                     b.Property<int?>("carId")
                         .HasColumnType("int");
 
-                    b.HasKey("HareketId");
+                    b.HasKey("Id");
 
                     b.HasIndex("DepoId");
 

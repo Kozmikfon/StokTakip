@@ -15,8 +15,8 @@ namespace StokTakip.Data.Concrete.EFcore.Mapping
         {
             builder.ToTable("depoTransferleri");
 
-            builder.HasKey(dt => dt.transferId);
-            builder.Property(dt => dt.transferId)
+            builder.HasKey(dt => dt.Id);
+            builder.Property(dt => dt.Id)
                    .ValueGeneratedOnAdd();
 
             builder.Property(dt => dt.transferNo)

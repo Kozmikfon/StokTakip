@@ -11,8 +11,8 @@ namespace StokTakip.Entities.Concrete
 {
     public class Kullanici: EntityBase, IEntity
     {
-        [Key]
-        public int kullaniciId { get; set; }
+        //[Key]
+        //public int kullaniciId { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [MaxLength(100)]

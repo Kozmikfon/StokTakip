@@ -15,8 +15,8 @@ namespace StokTakip.Data.Concrete.EFcore.Mapping
         {
             builder.ToTable("Stoklar");
 
-            builder.HasKey(s => s.HareketId);
-            builder.Property(s => s.HareketId)
+            builder.HasKey(s => s.Id);
+            builder.Property(s => s.Id)
                    .ValueGeneratedOnAdd();
 
             builder.Property(s => s.MalzemeId)

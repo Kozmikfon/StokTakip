@@ -15,8 +15,8 @@ namespace StokTakip.Data.Concrete.EFcore.Mapping
         {
             builder.ToTable("Cariler");
 
-            builder.HasKey(c => c.carId);
-            builder.Property(c => c.carId).ValueGeneratedOnAdd();
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id).ValueGeneratedOnAdd();
 
             builder.Property(c => c.unvan)
                    .IsRequired()

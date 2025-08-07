@@ -17,8 +17,8 @@ namespace StokTakip.Data.Concrete.EFcore.Mapping
             builder.ToTable("Depolar");
 
             // Primary key
-            builder.HasKey(d => d.depoId);
-            builder.Property(d => d.depoId)
+            builder.HasKey(d => d.Id);
+            builder.Property(d => d.Id)
                    .ValueGeneratedOnAdd();
 
             // depoAd
