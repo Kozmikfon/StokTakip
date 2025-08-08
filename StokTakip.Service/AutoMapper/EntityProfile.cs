@@ -5,6 +5,7 @@ using StokTakip.Entities.Dtos.DepoDtos;
 using StokTakip.Entities.Dtos.IrsaliyeDetayDtos;
 using StokTakip.Entities.Dtos.IrsaliyeDtos;
 using StokTakip.Entities.Dtos.MalzemeDtos;
+using StokTakip.Entities.Dtos.StokDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,16 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>().ReverseMap();
             CreateMap<IrsaliyeDetay, IrsaliyeDetayCreateDto>().ReverseMap();
 
-            
+            //Stok
+           
+            CreateMap<Stok, StokDto>()
+           .ForMember(dest => dest.MalzemeAdi, opt => opt.MapFrom(src => src.Malzeme != null ? src.Malzeme.malzemeAdi : null))
+           .ForMember(dest => dest.DepoAdi, opt => opt.MapFrom(src => src.Depo != null ? src.Depo.depoAd : null))
+           .ForMember(dest => dest.CariUnvan, opt => opt.MapFrom(src => src.cari != null ? src.cari.unvan : null));
+
+
+
+
 
 
         }

@@ -19,6 +19,7 @@ namespace StokTakip.Data.Abstract
         IStokRepository Stoklar { get; }
         ILogTakipRepository LogTakip { get; }
         IMalzemeRepository Malzeme { get; }
+        IDepoTransferRepository DepoTransfer { get; }
 
         Task<int> SaveAsync();
 

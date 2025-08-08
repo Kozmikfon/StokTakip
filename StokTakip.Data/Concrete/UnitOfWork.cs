@@ -49,6 +49,12 @@ namespace StokTakip.Data.Concrete
 
         public IMalzemeRepository Malzeme => _efmalzemeRepository ??= new EfMalzemeRepository(_context);
 
+        
+
+        
+
+        IDepoTransferRepository IUnitOfWork.DepoTransfer => throw new NotImplementedException();
+
         public async ValueTask DisposeAsync()
         {
             await _context.DisposeAsync();//veritabanı bağlantısını kapatılır
