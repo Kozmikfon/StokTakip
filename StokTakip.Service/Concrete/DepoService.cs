@@ -2,6 +2,7 @@
 using StokTakip.Data.Abstract;
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.DepoDtos;
+using StokTakip.Entities.Dtos.LogTakipDtos;
 using StokTakip.Service.Abstract;
 using StokTakip.Shared.Utilities.Abstract;
 using StokTakip.Shared.Utilities.ComplexTypes;
@@ -18,10 +19,12 @@ namespace StokTakip.Service.Concrete
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public DepoService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly ILogTakipService _logTakipService;
+        public DepoService(IUnitOfWork unitOfWork, IMapper mapper, ILogTakipService logTakipService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logTakipService = logTakipService;
         }
         public async Task<IDataResult<DepoDto>> Create(DepoCreateDto depoCreateDto)
         {
@@ -47,6 +50,16 @@ namespace StokTakip.Service.Concrete
                 await _unitOfWork.SaveAsync();
                 return new Result(ResultStatus.Success);
             }
+
+            // Log kaydı oluştur
+            await _logTakipService.CreateAsync(new LogTakipDto
+            {
+                tabloAdi = "Depo",
+                islemTipi = "Silme",
+                islemTarihi = DateTime.Now,
+                detay = $"ID {entity.Id} olan depo silindi.",
+                kullaniciAdi = "Admin"
+            });
             return new Result(ResultStatus.Error, "Hata, depo silme işlemi başarısız.");
         }
 

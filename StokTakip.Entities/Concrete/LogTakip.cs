@@ -32,9 +32,9 @@ namespace StokTakip.Entities.Concrete
         [DisplayName("İşlem Detayı:")]
         public string? detay { get; set; }
         // Bu kullanıcı artık IdentityUser olacak
-        public int AppUserId { get; set; }
+        //public int AppUserId { get; set; }
 
-        [ForeignKey(nameof(AppUserId))]
-        public AppUser AppUser { get; set; } = null!;
+        //[ForeignKey(nameof(AppUserId))]
+        //public AppUser AppUser { get; set; } = null!;
     }
 }

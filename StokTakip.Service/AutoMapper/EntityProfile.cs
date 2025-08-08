@@ -4,6 +4,7 @@ using StokTakip.Entities.Dtos.CariDtos;
 using StokTakip.Entities.Dtos.DepoDtos;
 using StokTakip.Entities.Dtos.IrsaliyeDetayDtos;
 using StokTakip.Entities.Dtos.IrsaliyeDtos;
+using StokTakip.Entities.Dtos.LogTakipDtos;
 using StokTakip.Entities.Dtos.MalzemeDtos;
 using StokTakip.Entities.Dtos.StokDtos;
 using System;
@@ -50,7 +51,8 @@ namespace StokTakip.Service.AutoMapper
            .ForMember(dest => dest.CariUnvan, opt => opt.MapFrom(src => src.cari != null ? src.cari.unvan : null));
 
 
-
+            //logtakip
+            CreateMap<LogTakip,LogTakipDto>().ReverseMap();
 
 
 

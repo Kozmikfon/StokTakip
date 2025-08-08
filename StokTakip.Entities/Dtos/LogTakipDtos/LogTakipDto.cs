@@ -26,8 +26,8 @@ namespace StokTakip.Entities.Dtos.LogTakipDtos
         [MaxLength(500)]
         public string? detay { get; set; }
 
-        [DisplayName("Kullanıcı ID:")]
-        public int AppUserId { get; set; }
+        //[DisplayName("Kullanıcı ID:")]
+        //public int AppUserId { get; set; }
 
         // İlişkili kullanıcının adı (ekranda göstermek için kullanılabilir)
         [DisplayName("Kullanıcı Adı:")]

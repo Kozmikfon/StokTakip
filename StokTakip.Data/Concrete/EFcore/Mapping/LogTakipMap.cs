@@ -34,13 +34,7 @@ namespace StokTakip.Data.Concrete.EFcore.Mapping
             builder.Property(l => l.detay)
                        .HasMaxLength(500);
 
-            builder.Property(l => l.AppUserId)
-                       .IsRequired();
 
-            builder.HasOne(l => l.AppUser)
-                       .WithMany()
-                       .HasForeignKey(l => l.AppUserId)
-                       .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
