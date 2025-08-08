@@ -41,6 +41,9 @@ namespace StokTakip.Service.Concrete
 
             await _unitOfWork.IrsaliyeDetay.AddAsync(detay);
 
+            var hareketTipi = irsaliye.irsaliyeTipi == IrsaliyeTipi.Giris
+                 ? StokHareketTipi.IrsaliyeGiris
+                  : StokHareketTipi.IrsaliyeCikis;
             // 4. Stok kaydı oluştur
             var stok = new Stok
             {
@@ -48,9 +51,9 @@ namespace StokTakip.Service.Concrete
                 DepoId = irsaliye.depoId,
                 HareketTarihi = DateTime.Now,
                 Miktar = irsaliye.irsaliyeTipi == IrsaliyeTipi.Giris ? dto.miktar : -dto.miktar,
-                HareketTipi = StokHareketTipi.IrsaliyeGiris,
+                HareketTipi = hareketTipi,
                 ReferansId = dto.irsaliyeId,
-                Aciklama = "İrsaliye üzerinden otomatik stok kaydı",
+                Aciklama = $"İrsaliye ({irsaliye.irsaliyeNo}) üzerinden otomatik stok {(hareketTipi == StokHareketTipi.IrsaliyeGiris ? "girişi" : "çıkışı")}",
                 carId = irsaliye.carId,
                 SeriNo = dto.seriNo
             };
