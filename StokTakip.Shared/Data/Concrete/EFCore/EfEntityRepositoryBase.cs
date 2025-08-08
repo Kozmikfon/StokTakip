@@ -57,7 +57,7 @@ namespace StokTakip.Shared.Data.Concrete.EFCore
             }
             return await query.ToListAsync();
         }
-
+        
         public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
