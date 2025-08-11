@@ -1,0 +1,59 @@
+﻿@model StokTakip.Entities.Dtos.CariDtos.CariUpdateDto
+@{
+    ViewData["Title"] = "Cari Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2 class="mb-3">@ViewData["Title"]</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Edit" method="post" class="row g-3">
+    <input type="hidden" asp-for="Id" />
+    <div class="col-12"><div asp-validation-summary="ModelOnly" class="text-danger"></div></div>
+
+    <div class="col-md-6">
+        <label asp-for="Unvan" class="form-label"></label>
+        <input asp-for="Unvan" class="form-control" />
+        <span asp-validation-for="Unvan" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Telefon" class="form-label"></label>
+        <input asp-for="Telefon" class="form-control" />
+        <span asp-validation-for="Telefon" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="VergiNo" class="form-label"></label>
+        <input asp-for="VergiNo" class="form-control" />
+        <span asp-validation-for="VergiNo" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Adres" class="form-label"></label>
+        <textarea asp-for="Adres" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Adres" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="VergiDairesi" class="form-label"></label>
+        <input asp-for="VergiDairesi" class="form-control" />
+        <span asp-validation-for="VergiDairesi" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Güncelle</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

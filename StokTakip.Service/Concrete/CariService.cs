@@ -2,6 +2,7 @@
 using StokTakip.Data.Abstract;
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.CariDtos;
+using StokTakip.Entities.Dtos.DepoDtos;
 using StokTakip.Service.Abstract;
 using StokTakip.Shared.Utilities.Abstract;
 using StokTakip.Shared.Utilities.ComplexTypes;
@@ -26,6 +27,20 @@ namespace StokTakip.Service.Concrete
             _mapper = mapper;
         }
 
+        public async Task<IDataResult<CariDto>> CreateAsync(CariCreateDto cariCreateDto)
+        {
+            if (cariCreateDto != null)
+            {
+                var entity = _mapper.Map<Cari>(cariCreateDto);
+                entity.CreatedTime = DateTime.Now;
+                var addes = await _unitOfWork.Cari.AddAsync(entity);
+                await _unitOfWork.SaveAsync();
+                var result = _mapper.Map<CariDto>(addes);
+                return new DataResult<CariDto>(ResultStatus.Success, result);
+            }
+            return new DataResult<CariDto>(ResultStatus.Error, "Hata, depo oluşturma işlemi başarısız", null);
+        }
+
         public async Task<IResult> DeleteAsync(int id)
         {
             var cari = await _unitOfWork.Cari.GetAsync(x => x.Id == id);
@@ -37,6 +52,13 @@ namespace StokTakip.Service.Concrete
             await _unitOfWork.SaveAsync();
 
             return new Result(ResultStatus.Success, "Malzeme veritabanından silindi.");
+        }
+
+        public async Task<IDataResult<List<CariListDto>>> GetAllAsync()
+        {
+            var entities = await _unitOfWork.Cari.GetAllAsync();
+            var dtoList = _mapper.Map<List<CariListDto>>(entities);
+            return new DataResult<List<CariListDto>>(ResultStatus.Success, dtoList);
         }
 
         public async Task<IDataResult<CariDto>> GetAsync(int id)

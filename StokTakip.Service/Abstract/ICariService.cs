@@ -10,7 +10,9 @@ namespace StokTakip.Service.Abstract
 {
     public interface ICariService
     {
+        Task<IDataResult<CariDto>> CreateAsync(CariCreateDto cariCreateDto);
         Task<IDataResult<CariDto>> GetAsync(int id);
+        Task<IDataResult<List<CariListDto>>> GetAllAsync();
 
         Task<IDataResult<CariDto>> UpdateAsync(CariUpdateDto cariUpdateDto);
 

@@ -25,7 +25,8 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<Cari,CariUpdateDto>().ReverseMap();
             CreateMap<Cari,CariDto>().ReverseMap();
             CreateMap<Cari,CariCreateDto>().ReverseMap();
-            
+            CreateMap<Cari, CariListDto>().ReverseMap();
+
             //depo
             CreateMap<Depo,DepoDto>().ReverseMap();
             CreateMap<Depo, DepoUpdateDto>().ReverseMap();
