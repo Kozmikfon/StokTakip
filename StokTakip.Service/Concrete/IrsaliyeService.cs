@@ -40,17 +40,15 @@ namespace StokTakip.Service.Concrete
 
         public async Task<IResult> Delete(int id)
         {
-            var entity = await _unitOfWork.Irsaliye.GetAsync(x => x.Id == id);
-            if (entity == null)
-            { 
-                return new Result(ResultStatus.Error, "Hata, istenilen irsaliye bulunamadı."); 
-            }
+            var irsaliye = await _unitOfWork.Irsaliye.GetAsync(x => x.Id == id);
+            if (irsaliye == null)
+                return new Result(ResultStatus.Error, "Hata, silinecek malzeme bulunamadı.");
 
-            
-            entity.IsDelete = true;
-            await _unitOfWork.Irsaliye.UpdateAsync(entity);
+            // HARD DELETE
+            await _unitOfWork.Irsaliye.DeleteAsync(irsaliye); // <- repo’nuzda varsa bunu kullan
             await _unitOfWork.SaveAsync();
-            return new Result(ResultStatus.Success, "İrsaliye başarılı şekilde silindi.");
+
+            return new Result(ResultStatus.Success, "Malzeme veritabanından silindi.");
         }
 
         public async Task<IDataResult<IrsaliyeDto>> Get(int id)

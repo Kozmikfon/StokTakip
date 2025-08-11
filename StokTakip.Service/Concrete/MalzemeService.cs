@@ -45,15 +45,13 @@ namespace StokTakip.Service.Concrete
             if (malzeme == null)
                 return new Result(ResultStatus.Error, "Hata, silinecek malzeme bulunamadı.");
 
-            if (malzeme.IsDelete)
-                return new Result(ResultStatus.Warning, "Malzeme zaten silinmiş.");
-
-            malzeme.IsDelete = true;
-            await _unitOfWork.Malzeme.UpdateAsync(malzeme);
+            // HARD DELETE
+            await _unitOfWork.Malzeme.DeleteAsync(malzeme); // <- repo’nuzda varsa bunu kullan
             await _unitOfWork.SaveAsync();
 
-            return new Result(ResultStatus.Success, "Malzeme başarıyla silindi.");
+            return new Result(ResultStatus.Success, "Malzeme veritabanından silindi.");
         }
+
 
         public async Task<IDataResult<List<MalzemeListDto>>> GetAllAsync()
         {

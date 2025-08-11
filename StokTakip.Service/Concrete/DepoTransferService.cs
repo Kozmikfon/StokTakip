@@ -35,16 +35,15 @@ namespace StokTakip.Service.Concrete
 
         public async Task<IResult> DeleteAsync(int id)
         {
-           var transfer=await _unitOfWork.DepoTransfer.GetAsync(x => x.Id == id);
-            if (transfer == null)
-            {
-                return new Result(ResultStatus.Error, "Hata, istenilen transfer bulunamadı.");
-            }
-            transfer.IsDelete = true;
-            transfer.IsActive = false;
-            await _unitOfWork.DepoTransfer.UpdateAsync(transfer);
+            var depoTransfer = await _unitOfWork.DepoTransfer.GetAsync(x => x.Id == id);
+            if (depoTransfer == null)
+                return new Result(ResultStatus.Error, "Hata, silinecek malzeme bulunamadı.");
+
+            // HARD DELETE
+            await _unitOfWork.DepoTransfer.DeleteAsync(depoTransfer); // <- repo’nuzda varsa bunu kullan
             await _unitOfWork.SaveAsync();
-            return new Result(ResultStatus.Success, "Transfer başarıyla silindi.");
+
+            return new Result(ResultStatus.Success, "Malzeme veritabanından silindi.");
         }
 
         public async Task<IDataResult<List<DepoTransferListDto>>> GetAllAsync()

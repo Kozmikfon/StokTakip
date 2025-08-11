@@ -42,26 +42,18 @@ namespace StokTakip.Service.Concrete
 
         public async Task<IResult> Delete(int id)
         {
-            var entity= await _unitOfWork.Depo.GetAsync(x => x.Id == id);
-            if (entity != null)
-            {
-                entity.IsDelete = true;
-                await _unitOfWork.Depo.UpdateAsync(entity);
-                await _unitOfWork.SaveAsync();
-                return new Result(ResultStatus.Success);
-            }
+            var depo = await _unitOfWork.Depo.GetAsync(x => x.Id == id);
+            if (depo == null)
+                return new Result(ResultStatus.Error, "Hata, silinecek malzeme bulunamadı.");
 
-            // Log kaydı oluştur
-            await _logTakipService.CreateAsync(new LogTakipDto
-            {
-                tabloAdi = "Depo",
-                islemTipi = "Silme",
-                islemTarihi = DateTime.Now,
-                detay = $"ID {entity.Id} olan depo silindi.",
-                kullaniciAdi = "Admin"
-            });
-            return new Result(ResultStatus.Error, "Hata, depo silme işlemi başarısız.");
+            // HARD DELETE
+            await _unitOfWork.Depo.DeleteAsync(depo); // <- repo’nuzda varsa bunu kullan
+            await _unitOfWork.SaveAsync();
+
+            return new Result(ResultStatus.Success, "Malzeme veritabanından silindi.");
         }
+
+     
 
         public async Task<IDataResult<DepoDto>> Get(int id)
         {

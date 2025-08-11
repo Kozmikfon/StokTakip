@@ -41,6 +41,9 @@ namespace StokTakip.Data.Concrete.EFcore.Mapping
 
             builder.Property(m => m.aciklama)
                    .HasMaxLength(500);
+
+            builder.HasIndex(m => new { m.kategori, m.malzemeAdi });
+
         }
     }
 }

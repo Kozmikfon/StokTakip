@@ -13,5 +13,7 @@ namespace StokTakip.Service.Abstract
         Task<IDataResult<CariDto>> GetAsync(int id);
 
         Task<IDataResult<CariDto>> UpdateAsync(CariUpdateDto cariUpdateDto);
+
+        Task<IResult> DeleteAsync(int id);
     }
 }

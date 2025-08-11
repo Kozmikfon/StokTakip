@@ -26,6 +26,19 @@ namespace StokTakip.Service.Concrete
             _mapper = mapper;
         }
 
+        public async Task<IResult> DeleteAsync(int id)
+        {
+            var cari = await _unitOfWork.Cari.GetAsync(x => x.Id == id);
+            if (cari == null)
+                return new Result(ResultStatus.Error, "Hata, silinecek malzeme bulunamadı.");
+
+            // HARD DELETE
+            await _unitOfWork.Cari.DeleteAsync(cari); // <- repo’nuzda varsa bunu kullan
+            await _unitOfWork.SaveAsync();
+
+            return new Result(ResultStatus.Success, "Malzeme veritabanından silindi.");
+        }
+
         public async Task<IDataResult<CariDto>> GetAsync(int id)
         {
             var cari = await _unitOfWork.Cari.GetAsync(x=> x.Id==id);
