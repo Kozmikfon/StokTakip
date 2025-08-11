@@ -58,15 +58,6 @@
                            asp-route-id="@(x.Id)">
                             Detay
                         </a>
-                    </td>
-                    <td>
-                        <a class="btn btn-sm btn-outline-secondary"
-                           asp-controller="Malzeme"
-                           asp-action="Details"
-                           asp-route-id="@(x.Id)">
-                            Detay
-                        </a>
-
                         <form asp-action="Delete" asp-route-id="@(x.Id)" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger"
                                     onclick="return confirm('Bu malzemeyi silmek istediğinize emin misiniz?');">
@@ -74,7 +65,6 @@
                             </button>
                         </form>
                     </td>
-
                 </tr>
             }
         }
