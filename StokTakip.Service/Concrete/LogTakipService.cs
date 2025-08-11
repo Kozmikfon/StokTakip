@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using StokTakip.Data.Abstract;
 using StokTakip.Data.Concrete;
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.LogTakipDtos;
@@ -16,9 +17,9 @@ namespace StokTakip.Service.Concrete
 {
     public class LogTakipService : ILogTakipService
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public LogTakipService(UnitOfWork unitOfWork, IMapper mapper)
+        public LogTakipService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;

@@ -17,11 +17,11 @@ namespace StokTakip.Service.Extensions
     {
         public static IServiceCollection MyCustomService(this IServiceCollection services)
         {
-            services.AddDbContext<StokContext>();
+            
             services.AddScoped<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IDepoService, DepoService>();
             services.AddScoped<IDepoTransferDetayService,DepoTransferDetayService>();
-            services.AddScoped<IDepotransferService,DepoTransferService>();
+            services.AddScoped<IDepoTransferService,DepoTransferService>();
             services.AddScoped<IMalzemeService, MalzemeService>();
             services.AddScoped<IStokService, StokService>();
             services.AddScoped<IIrsaliyeService, IrsaliyeService>();

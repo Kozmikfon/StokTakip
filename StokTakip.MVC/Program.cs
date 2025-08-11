@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using StokTakip.Data.Concrete.EFcore.Contexts;
 using StokTakip.Service.Extensions;
+using StokTakip.Service.AutoMapper;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<EntityProfile>();
+});
+
 builder.Services.MyCustomService();
+
 
 //builder.Services.AddDbContext<StokContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -30,6 +38,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>

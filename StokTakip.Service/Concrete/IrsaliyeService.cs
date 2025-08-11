@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using StokTakip.Data.Abstract;
 using StokTakip.Data.Concrete;
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.IrsaliyeDtos;
@@ -16,10 +17,10 @@ namespace StokTakip.Service.Concrete
 {
     public class IrsaliyeService : IIrsaliyeService
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public IrsaliyeService(UnitOfWork unitOfWork, IMapper mapper)
+        public IrsaliyeService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;

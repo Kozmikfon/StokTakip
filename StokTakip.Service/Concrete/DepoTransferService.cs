@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace StokTakip.Service.Concrete
 {
-    public class DepoTransferService : IDepotransferService
+    public class DepoTransferService : IDepoTransferService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;

@@ -1,0 +1,71 @@
+﻿@model StokTakip.Entities.Dtos.MalzemeDtos.MalzemeCreateDto
+@{
+    ViewData["Title"] = "Yeni Malzeme";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-3">@ViewData["Title"]</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Create" method="post" class="row g-3">
+    @* Toplu hataları göstermek için *@
+    <div class="col-12">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="malzemeAdi" class="form-label"></label>
+        <input asp-for="malzemeAdi" class="form-control" />
+        <span asp-validation-for="malzemeAdi" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="barkodNo" class="form-label"></label>
+        <input asp-for="barkodNo" class="form-control" />
+        <span asp-validation-for="barkodNo" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="birim" class="form-label"></label>
+        <input asp-for="birim" class="form-control" />
+        <span asp-validation-for="birim" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="kategori" class="form-label"></label>
+        <input asp-for="kategori" class="form-control" />
+        <span asp-validation-for="kategori" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="minStokMiktar" class="form-label"></label>
+        <input asp-for="minStokMiktar" class="form-control" type="number" min="0" step="1" />
+        <span asp-validation-for="minStokMiktar" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check">
+            <input class="form-check-input" asp-for="aktifPasif" />
+            <label class="form-check-label" asp-for="aktifPasif"></label>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="aciklama" class="form-label"></label>
+        <textarea asp-for="aciklama" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="aciklama" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Listeye Dön</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

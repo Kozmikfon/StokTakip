@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StokTakip.Service.Abstract
 {
-    public interface IDepotransferService
+    public interface IDepoTransferService
     {
         Task<IDataResult<DepoTransferDto>> GetAsync(int id);
         Task<IDataResult<List<DepoTransferListDto>>> GetAllAsync();

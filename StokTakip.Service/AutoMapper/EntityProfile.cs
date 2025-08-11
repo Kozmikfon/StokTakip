@@ -2,6 +2,8 @@
 using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.CariDtos;
 using StokTakip.Entities.Dtos.DepoDtos;
+using StokTakip.Entities.Dtos.DepoTransferDetayDtos;
+using StokTakip.Entities.Dtos.DepoTransferDtos;
 using StokTakip.Entities.Dtos.IrsaliyeDetayDtos;
 using StokTakip.Entities.Dtos.IrsaliyeDtos;
 using StokTakip.Entities.Dtos.LogTakipDtos;
@@ -42,9 +44,10 @@ namespace StokTakip.Service.AutoMapper
             //irsaliyeDetay
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>().ReverseMap();
             CreateMap<IrsaliyeDetay, IrsaliyeDetayCreateDto>().ReverseMap();
+            
 
             //Stok
-           
+
             CreateMap<Stok, StokDto>()
            .ForMember(dest => dest.MalzemeAdi, opt => opt.MapFrom(src => src.Malzeme != null ? src.Malzeme.malzemeAdi : null))
            .ForMember(dest => dest.DepoAdi, opt => opt.MapFrom(src => src.Depo != null ? src.Depo.depoAd : null))
@@ -53,6 +56,23 @@ namespace StokTakip.Service.AutoMapper
 
             //logtakip
             CreateMap<LogTakip,LogTakipDto>().ReverseMap();
+
+            CreateMap<DepoTransfer,DepoTransferDto>().ReverseMap();
+            CreateMap<DepoTransfer, DepoTransferCreateDto>().ReverseMap();
+            CreateMap<DepoTransfer, DepoTransferListDto>().ReverseMap();
+            CreateMap<DepoTransfer, DepoTransferUpdateDto>().ReverseMap();
+
+            CreateMap<DepoTransferDetay, DepoTransferDetayDto>().ReverseMap();
+            CreateMap<DepoTransferDetay, DepoTransferDetayCreateDto>().ReverseMap();
+            
+            CreateMap<DepoTransferDetay, DepoTransferDetayUpdateDto>().ReverseMap();
+
+           
+
+
+
+
+
 
 
 

@@ -1,0 +1,41 @@
+﻿@model StokTakip.Entities.Dtos.MalzemeDtos.MalzemeDto
+@{
+    ViewData["Title"] = "Malzeme Detayı";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-3">@ViewData["Title"]</h2>
+
+<div class="card p-3">
+    <div class="row mb-2">
+        <div class="col-md-6"><strong>Ad:</strong> @Model.malzemeAdi</div>
+        <div class="col-md-6"><strong>Barkod:</strong> @Model.barkodNo</div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-6"><strong>Birim:</strong> @Model.birim</div>
+        <div class="col-md-6"><strong>Kategori:</strong> @Model.kategori</div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md-6"><strong>Min. Stok:</strong> @Model.minStokMiktar</div>
+        <div class="col-md-6">
+            <strong>Durum:</strong>
+            @if (Model.aktifPasif)
+            {
+                <span class="badge bg-success">Aktif</span>
+            }
+            else
+            {
+
+                <span class="badge bg-secondary">Pasif</span>
+            }
+        </div>
+    </div>
+    <div class="mb-2">
+        <strong>Açıklama:</strong>
+        <div>@Model.aciklama</div>
+    </div>
+</div>
+
+<p class="mt-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">Listeye Dön</a>
+</p>
