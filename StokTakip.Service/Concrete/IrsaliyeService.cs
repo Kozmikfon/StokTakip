@@ -52,23 +52,31 @@ namespace StokTakip.Service.Concrete
         private async Task<Result> AdjustStockAsync(int depoId, int malzemeId, decimal delta)
         {
             var stok = await _unitOfWork.Stok.GetAsync(s => s.DepoId == depoId && s.MalzemeId == malzemeId);
+            var isNew = false;
+
             if (stok == null)
             {
                 if (delta < 0)
-                    return new Result(ResultStatus.Error, "Yetersiz stok. (Stok kaydı yok)");
+                    return new Result(ResultStatus.Error, "Yetersiz stok (kayıt yok).");
 
                 stok = new Stok { DepoId = depoId, MalzemeId = malzemeId, Miktar = 0 };
-                await _unitOfWork.Stok.AddAsync(stok);
+                isNew = true;
             }
 
-            var yeniMiktar = stok.Miktar + delta;
-            if (yeniMiktar < 0)
+            var yeni = stok.Miktar + delta;
+            if (yeni < 0)
                 return new Result(ResultStatus.Error, "Yetersiz stok. İşlem iptal edildi.");
 
-            stok.Miktar = yeniMiktar;
-            await _unitOfWork.Stok.UpdateAsync(stok);
+            stok.Miktar = yeni;
+
+            if (isNew)
+                await _unitOfWork.Stok.AddAsync(stok);   // YENİ: sadece Add
+            else
+                await _unitOfWork.Stok.UpdateAsync(stok); // VAR OLAN: Update
+
             return new Result(ResultStatus.Success);
         }
+
 
         // -------------------- READ --------------------
         public async Task<IDataResult<IrsaliyeDto>> Get(int id)
@@ -118,13 +126,6 @@ namespace StokTakip.Service.Concrete
                         .ToList();
 
             var list = await _unitOfWork.Irsaliye.GetAllAsync(i => i.depoId == depoId && irsIds.Contains(i.Id));
-            var dtoList = _mapper.Map<List<IrsaliyeListDto>>(list);
-            return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
-        }
-
-        public async Task<IDataResult<List<IrsaliyeListDto>>> GetAllByNonDeleteAsync()
-        {
-            var list = await _unitOfWork.Irsaliye.GetAllAsync(i => !i.IsDelete);
             var dtoList = _mapper.Map<List<IrsaliyeListDto>>(list);
             return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
         }
@@ -306,5 +307,27 @@ namespace StokTakip.Service.Concrete
             outDto.Detaylar = new List<IrsaliyeDetayDto>();
             return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
         }
+
+        public async Task<IDataResult<List<IrsaliyeDto>>> GetAllByNonDeleteAsync()
+        {
+            // Silinmemiş başlıkları çek
+            var headers = await _unitOfWork.Irsaliye.GetAllAsync(i => !i.IsDelete);
+
+            // IrsaliyeDto: Entity + Detaylar
+            var list = new List<IrsaliyeDto>();
+            foreach (var h in headers)
+            {
+                var dto = _mapper.Map<IrsaliyeDto>(h);
+
+                // Detayları getir ve map et
+                var dets = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == h.Id);
+                dto.Detaylar = _mapper.Map<List<IrsaliyeDetayDto>>(dets);
+
+                list.Add(dto);
+            }
+
+            return new DataResult<List<IrsaliyeDto>>(ResultStatus.Success, list);
+        }
+
     }
 }

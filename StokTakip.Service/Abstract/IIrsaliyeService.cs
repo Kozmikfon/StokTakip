@@ -26,7 +26,9 @@ namespace StokTakip.Service.Abstract
 
         Task<IResult> Delete(int id);
 
-      
+        Task<IDataResult<List<IrsaliyeDto>>> GetAllByNonDeleteAsync();
+
+
         // Satır bazlı ekleme/çıkarma; her çağrıda stok anında +/- güncellenir.
         Task<IResult> AddLineAsync(int irsaliyeId, IrsaliyeDetayCreateDto lineDto);
         Task<IResult> RemoveLineAsync(int irsaliyeId, int detayId);

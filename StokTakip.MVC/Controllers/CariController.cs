@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using StokTakip.Entities.Dtos.CariDtos;
 using StokTakip.Service.Abstract;
 using StokTakip.Shared.Utilities.ComplexTypes;
@@ -21,7 +22,9 @@ namespace StokTakip.MVC.Controllers
                 TempData["Error"] = res.Info ?? "Cari listesi alınamadı.";
                 return View(new List<CariDto>());
             }
+           
             return View(res.Data ?? new List<CariListDto>());
+            
 
         }
 

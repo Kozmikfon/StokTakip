@@ -10,6 +10,8 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDetayDtos
 {
     public class IrsaliyeDetayDto
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "İrsaliye Numarası boş geçilemez")]
         [DisplayName("İrsaliye Numarası:")]
         public int irsaliyeId { get; set; }

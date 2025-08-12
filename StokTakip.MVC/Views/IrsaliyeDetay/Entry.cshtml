@@ -1,0 +1,113 @@
+﻿@using StokTakip.Entities.Dtos.IrsaliyeDetayDtos
+@model List<IrsaliyeDetayDto>
+@{
+    ViewData["Title"] = "Entry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var h = ViewBag.Irsaliye;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>@ViewData["Title"]</h3>
+    <div class="d-flex gap-2">
+        <a class="btn btn-secondary" asp-controller="Irsaliye" asp-action="Index">Liste</a>
+        <a class="btn btn-outline-primary" asp-controller="Irsaliye" asp-action="Details" asp-route-id="@h.Id">Tamamla</a>
+    </div>
+</div>
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success">@TempData["Ok"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<!-- Header Özeti -->
+<div class="card mb-3">
+    <div class="card-body row g-3">
+        <div class="col-md-3"><strong>No:</strong> @h.irsaliyeNo</div>
+        <div class="col-md-3"><strong>CariId:</strong> @h.carId</div>
+        <div class="col-md-3"><strong>Tarih:</strong> @h.irsaliyeTarihi.ToString("dd.MM.yyyy")</div>
+        <div class="col-md-3"><strong>DepoId:</strong> @h.depoId</div>
+        <div class="col-md-3"><strong>Tip:</strong> @h.irsaliyeTipi</div>
+        <div class="col-md-3"><strong>Durum:</strong> @(h.durum ? "Aktif" : "Pasif")</div>
+        <div class="col-md-12"><strong>Açıklama:</strong> @h.aciklama</div>
+    </div>
+</div>
+
+<!-- Mevcut Satırlar -->
+<h5>Mevcut Satırlar</h5>
+<table class="table table-sm table-bordered align-middle">
+    <thead>
+        <tr>
+            <th>Malzeme</th>
+            <th class="text-end">Miktar</th>
+            <th class="text-end">Birim Fiyat</th>
+            <th class="text-end">Ara Toplam</th>
+            <th>Seri No</th>
+            <th style="width:110px"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null || !Model.Any())
+        {
+            <tr><td colspan="6" class="text-center text-muted">Henüz satır yok.</td></tr>
+        }
+        else
+        {
+            foreach (var d in Model)
+            {
+                <tr>
+                    <td>@(d.malzemeAdi ?? d.malzemeId.ToString())</td>
+                    <td class="text-end">@d.miktar</td>
+                    <td class="text-end">@d.birimFiyat.ToString("N2")</td>
+                    <td class="text-end">@d.araToplam.ToString("N2")</td>
+                    <td>@d.seriNo</td>
+                    <td class="text-end">
+                        <form asp-action="DeleteEntry" method="post" onsubmit="return confirm('Satır silinsin mi?');">
+                            <input type="hidden" name="irsaliyeId" value="@h.Id" />
+                            <input type="hidden" name="detayId" value="@d.Id" /> @* IrsaliyeDetayDto.Id olmalı *@
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<!-- Yeni Satır Ekle -->
+<h5>Yeni Satır Ekle</h5>
+<form asp-action="AddLineEntry" method="post" class="row g-2">
+    <input type="hidden" name="irsaliyeId" value="@h.Id" />
+    @Html.AntiForgeryToken()
+
+    <div class="col-md-4">
+        <label class="form-label">Malzeme</label>
+        <select name="malzemeId" class="form-select" required asp-items="ViewBag.Malzemeler"></select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Miktar</label>
+        <input name="miktar" type="number" step="0.001" min="0" class="form-control" required />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Birim Fiyat</label>
+        <input name="birimFiyat" type="number" step="0.01" min="0" class="form-control" required />
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Seri No</label>
+        <input name="seriNo" class="form-control" />
+    </div>
+
+    <div class="col-md-1 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Ekle</button>
+    </div>
+</form>
+

@@ -74,8 +74,8 @@ namespace StokTakip.Shared.Data.Concrete.EFCore
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
         {
-            await Task.Run(() => { _context.Set<TEntity>().Update(entity); });
-            return entity;
+            _context.Set<TEntity>().Update(entity);
+            return await Task.FromResult(entity);
         }
     }
 }

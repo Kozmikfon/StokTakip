@@ -8,6 +8,7 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
 {
     public class IrsaliyeListDto
     {
+     
         public List<IrsaliyeDto> Irsaliyeler { get; set; } = new List<IrsaliyeDto>();
     }
 }
