@@ -31,6 +31,7 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<Depo,DepoDto>().ReverseMap();
             CreateMap<Depo, DepoUpdateDto>().ReverseMap();
             CreateMap<Depo, DepoCreateDto>().ReverseMap();
+            CreateMap<Depo, DepoListDto>().ReverseMap();
 
             //malzeme
             CreateMap<Malzeme,MalzemeDto>().ReverseMap();

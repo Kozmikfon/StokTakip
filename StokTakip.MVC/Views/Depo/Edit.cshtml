@@ -1,0 +1,41 @@
+﻿@model StokTakip.Entities.Dtos.DepoDtos.DepoUpdateDto
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-dark shadow-dark border-radius-lg p-3">
+                    <h6 class="text-white m-0">Depo Düzenle</h6>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                <form asp-action="Edit" method="post" class="row g-3">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="col-12">
+                        <label asp-for="DepoAd" class="form-label"></label>
+                        <input asp-for="DepoAd" class="form-control" />
+                        <span asp-validation-for="DepoAd" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Aciklama" class="form-label"></label>
+                        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Aciklama" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn bg-gradient-dark">Güncelle</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Vazgeç</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

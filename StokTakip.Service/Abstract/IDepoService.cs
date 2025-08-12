@@ -14,5 +14,9 @@ namespace StokTakip.Service.Abstract
         Task<IDataResult<DepoDto>> Create(DepoCreateDto depoCreateDto);
         Task<IDataResult<DepoDto>> Update(DepoUpdateDto depoUpdateDto);
         Task<IResult> Delete(int id);
+        Task<IDataResult<List<DepoListDto>>> GetAllAsync();
+
+
+
     }
 }

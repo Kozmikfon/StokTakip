@@ -1,0 +1,56 @@
+﻿@model StokTakip.Entities.Dtos.DepoDtos.DepoCreateDto
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-dark shadow-dark border-radius-lg p-3">
+                    <h6 class="text-white m-0">Yeni Depo</h6>
+                </div>
+            </div>
+
+            <div class="card-body pt-3">
+                @* Genel model hataları *@
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <form asp-action="Create" method="post" class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="DepoAd" class="form-label"></label>
+                        <input asp-for="DepoAd" class="form-control" />
+                        <span asp-validation-for="DepoAd" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="RafBilgisi" class="form-label"></label>
+                        <input asp-for="RafBilgisi" class="form-control" />
+                        <span asp-validation-for="RafBilgisi" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="KonumBilgisi" class="form-label"></label>
+                        <input asp-for="KonumBilgisi" class="form-control" />
+                        <span asp-validation-for="KonumBilgisi" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Aciklama" class="form-label"></label>
+                        <textarea asp-for="Aciklama" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Aciklama" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn bg-gradient-dark">Kaydet</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Listeye Dön</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

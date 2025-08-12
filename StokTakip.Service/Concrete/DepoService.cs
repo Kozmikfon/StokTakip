@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using StokTakip.Data.Abstract;
 using StokTakip.Entities.Concrete;
+using StokTakip.Entities.Dtos.CariDtos;
 using StokTakip.Entities.Dtos.DepoDtos;
 using StokTakip.Entities.Dtos.LogTakipDtos;
 using StokTakip.Service.Abstract;
@@ -64,6 +65,13 @@ namespace StokTakip.Service.Concrete
                 return new DataResult<DepoDto>(ResultStatus.Success, result);
             }
             return new DataResult<DepoDto>(ResultStatus.Error, "Hata, depo bulunamadı", null);
+        }
+
+        public async Task<IDataResult<List<DepoListDto>>> GetAllAsync()
+        {
+            var entities = await _unitOfWork.Depo.GetAllAsync();
+            var dtoList = _mapper.Map<List<DepoListDto>>(entities);
+            return new DataResult<List<DepoListDto>>(ResultStatus.Success, dtoList);
         }
 
         public async Task<IDataResult<DepoDto>> Update(DepoUpdateDto depoUpdateDto)

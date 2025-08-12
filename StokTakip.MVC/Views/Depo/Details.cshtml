@@ -1,0 +1,37 @@
+﻿@model StokTakip.Entities.Dtos.DepoDtos.DepoDto
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-dark shadow-dark border-radius-lg p-3">
+                    <h6 class="text-white m-0">Depo Detay</h6>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Depo Adı</dt>
+                    <dd class="col-sm-8">@Model.DepoAd</dd>
+
+                    <dt class="col-sm-4">Raf Bilgisi</dt>
+                    <dd class="col-sm-8">@Model.RafBilgisi</dd>
+
+                    <dt class="col-sm-4">Konum</dt>
+                    <dd class="col-sm-8">@Model.KonumBilgisi</dd>
+
+                    <dt class="col-sm-4">Açıklama</dt>
+                    <dd class="col-sm-8">@Model.Aciklama</dd>
+                </dl>
+                <div class="mt-3">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Düzenle</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Listeye Dön</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
