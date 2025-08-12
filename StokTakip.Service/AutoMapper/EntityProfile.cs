@@ -42,6 +42,8 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<Irsaliye, IrsaliyeDto>().ReverseMap();
             CreateMap<Irsaliye, IrsaliyeCreateDto>().ReverseMap();
             CreateMap<Irsaliye, IrsaliyeListDto>().ReverseMap();
+            CreateMap<Irsaliye, IrsaliyeDto>()
+                     .ForMember(d => d.Detaylar, opt => opt.Ignore());
 
             //irsaliyeDetay
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>().ReverseMap();

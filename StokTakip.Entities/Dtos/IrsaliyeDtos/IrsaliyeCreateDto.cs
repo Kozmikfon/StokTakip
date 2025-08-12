@@ -1,4 +1,5 @@
-﻿using StokTakip.Entities.Enums;
+﻿using StokTakip.Entities.Dtos.IrsaliyeDetayDtos;
+using StokTakip.Entities.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,5 +42,8 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
         [Required]
         [DisplayName("Depo:")]
         public int DepoId { get; set; }
+
+        // Bulk create için (sen header->detay yapacaksan null/empty kalabilir)
+        public List<IrsaliyeDetayCreateDto>? Detaylar { get; set; }
     }
 }
