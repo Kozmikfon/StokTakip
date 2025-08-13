@@ -1,4 +1,5 @@
-﻿using StokTakip.Data.Abstract;
+﻿using Microsoft.EntityFrameworkCore;
+using StokTakip.Data.Abstract;
 using StokTakip.Data.Concrete.EFcore.Contexts;
 using StokTakip.Data.Concrete.EFcore.Repositories;
 using System;
@@ -26,6 +27,7 @@ namespace StokTakip.Data.Concrete
         public UnitOfWork(StokContext context)
         {
             _context = context;
+            
         }
         // _unitOfWord.Depo.Add(entity);
         // _unitOfWork.SaveAsync();
@@ -49,9 +51,7 @@ namespace StokTakip.Data.Concrete
 
         public IMalzemeRepository Malzeme => _efmalzemeRepository ??= new EfMalzemeRepository(_context);
 
-        
-
-        
+        public DbContext Context => _context;
 
         IDepoTransferRepository IUnitOfWork.DepoTransfer => throw new NotImplementedException();
 

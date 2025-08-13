@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,12 +21,16 @@ namespace StokTakip.Data.Abstract
         ILogTakipRepository LogTakip { get; }
         IMalzemeRepository Malzeme { get; }
         IDepoTransferRepository DepoTransfer { get; }
+        DbContext Context { get; }
+
 
         Task<int> SaveAsync();
 
 
+       
 
 
 
     }
+
 }

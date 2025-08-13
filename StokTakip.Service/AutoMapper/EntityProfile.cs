@@ -49,6 +49,11 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>()
                 .ForMember(d => d.Id, o => o.MapFrom(s => s.Id));
 
+            CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>()
+                 .ForMember(dest => dest.malzemeAdi, opt => opt.MapFrom(src => src.malzeme.malzemeAdi))
+                 .ForMember(dest => dest.irsaliyeNo, opt => opt.MapFrom(src => src.irsaliye.irsaliyeNo));
+
+
 
             //irsaliyeDetay
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>().ReverseMap();

@@ -74,21 +74,29 @@ namespace StokTakip.Service.Concrete
 
             var sign = GetSign(irs.irsaliyeTipi);
 
-            // Stok toplamını güncelle
-            var res = await AdjustStockAsync(irs.depoId, dto.malzemeId, sign * dto.miktar);
-            if (res.ResultStatus != ResultStatus.Success)
-                return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, res.Info ?? "Stok güncellenemedi.", null);
+            // 1. Stok güncelle
+            var stokResult = await AdjustStockAsync(irs.depoId, dto.malzemeId, sign * dto.miktar);
+            if (stokResult.ResultStatus != ResultStatus.Success)
+                return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, stokResult.Info ?? "Stok güncellenemedi.", null);
 
-            // Detay satırını ekle
+            // 2. Detay oluştur
             var detay = _mapper.Map<IrsaliyeDetay>(dto);
             detay.araToplam = dto.miktar * dto.birimFiyat;
 
             await _unitOfWork.IrsaliyeDetay.AddAsync(detay);
             await _unitOfWork.SaveAsync();
 
+            // 3. Navigation yükle
+            await _unitOfWork.Context.Entry(detay).Reference(d => d.irsaliye).LoadAsync();
+            await _unitOfWork.Context.Entry(detay).Reference(d => d.malzeme).LoadAsync();
+
+
+            // 4. DTO’ya maple
             var outDto = _mapper.Map<IrsaliyeDetayDto>(detay);
             return new DataResult<IrsaliyeDetayDto>(ResultStatus.Success, "İrsaliye detay oluşturuldu ve stok güncellendi.", outDto);
         }
+
+
 
         // ----- DELETE (stok geri al + detay sil) -----
         public async Task<IResult> DeleteAsync(int detayId)
@@ -117,9 +125,17 @@ namespace StokTakip.Service.Concrete
         // ----- LIST by header -----
         public async Task<IDataResult<List<IrsaliyeDetayDto>>> GetByIrsaliyeIdAsync(int irsaliyeId)
         {
-            var list = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irsaliyeId);
+            // Navigation property'leri Include ile dahil et
+            var list = await _unitOfWork.IrsaliyeDetay.GetAllAsync(
+                 x => x.irsaliyeId == irsaliyeId,
+                 x => x.irsaliye,
+                 x => x.malzeme
+    );
+
+
             var dtoList = _mapper.Map<List<IrsaliyeDetayDto>>(list);
             return new DataResult<List<IrsaliyeDetayDto>>(ResultStatus.Success, dtoList);
         }
+
     }
 }
