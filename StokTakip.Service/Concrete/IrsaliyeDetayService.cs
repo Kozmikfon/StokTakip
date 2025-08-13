@@ -74,27 +74,53 @@ namespace StokTakip.Service.Concrete
 
             var sign = GetSign(irs.irsaliyeTipi);
 
-            // 1. Stok güncelle
+            // 1. Stok güncelle (miktar olarak)
             var stokResult = await AdjustStockAsync(irs.depoId, dto.malzemeId, sign * dto.miktar);
             if (stokResult.ResultStatus != ResultStatus.Success)
                 return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, stokResult.Info ?? "Stok güncellenemedi.", null);
 
-            // 2. Detay oluştur
+            // 2. İrsaliye Detay oluştur
             var detay = _mapper.Map<IrsaliyeDetay>(dto);
             detay.araToplam = dto.miktar * dto.birimFiyat;
 
             await _unitOfWork.IrsaliyeDetay.AddAsync(detay);
             await _unitOfWork.SaveAsync();
 
-            // 3. Navigation yükle
+            // 3. Eğer GİRİŞ ise stok hareketi kayıt (detaya referanslı)
+            if (irs.irsaliyeTipi == IrsaliyeTipi.Giris)
+            {
+                var stok = new Stok
+                {
+                    DepoId = irs.depoId,
+                    MalzemeId = dto.malzemeId,
+                    Miktar = dto.miktar,
+                    HareketTipi = StokHareketTipi.IrsaliyeGiris,
+                    HareketTarihi = DateTime.Now,
+                    ReferansId = detay.Id,
+                    Aciklama = "İrsaliye üzerinden otomatik giriş",
+                    carId = irs.carId,
+                    SeriNo = dto.seriNo,
+                    CreatedByName = "Admin", // ileride login kullanıcıdan al
+                    ModifiedByName = "Admin",
+                    IsActive = true,
+                    IsDelete = false,
+                    CreatedTime = DateTime.Now,
+                    ModifiedTime = DateTime.Now
+                };
+
+                await _unitOfWork.Stok.AddAsync(stok);
+                await _unitOfWork.SaveAsync();
+            }
+
+            // 4. Navigation yükle
             await _unitOfWork.Context.Entry(detay).Reference(d => d.irsaliye).LoadAsync();
             await _unitOfWork.Context.Entry(detay).Reference(d => d.malzeme).LoadAsync();
 
-
-            // 4. DTO’ya maple
+            // 5. DTO’ya maple
             var outDto = _mapper.Map<IrsaliyeDetayDto>(detay);
-            return new DataResult<IrsaliyeDetayDto>(ResultStatus.Success, "İrsaliye detay oluşturuldu ve stok güncellendi.", outDto);
+            return new DataResult<IrsaliyeDetayDto>(ResultStatus.Success, "İrsaliye detay oluşturuldu ve stok kaydı yapıldı.", outDto);
         }
+
 
 
 
