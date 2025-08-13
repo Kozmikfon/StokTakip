@@ -1,0 +1,48 @@
+﻿@model List<StokTakip.Entities.Dtos.DepoTransferDtos.DepoTransferListDto>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>@ViewData["Title"]</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">+ Yeni Transfer Ekle</a>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Transfer No</th>
+            <th>Kaynak Depo</th>
+            <th>Hedef Depo</th>
+            <th>Transfer Tarihi</th>
+            <th>Seri No</th>
+            <th>Açıklama</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.TransferNo</td>
+                    <td>@item.KaynakDepoAdi</td>
+                    <td>@item.HedefDepoAdi</td>
+                    <td>@item.TransferTarihi.ToString("yyyy-MM-dd")</td>
+                    <td>@item.SeriNo</td>
+                    <td>@item.Aciklama</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detaylar</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Güncelle</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Sil</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="7" class="text-center">Hiç transfer kaydı bulunamadı.</td></tr>
+        }
+    </tbody>
+</table>>
+

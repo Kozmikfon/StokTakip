@@ -1,0 +1,39 @@
+﻿@model StokTakip.Entities.Dtos.DepoTransferDtos.DepoTransferDto
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card">
+    <div class="card-header">
+        Transfer Bilgileri
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Transfer No</dt>
+            <dd class="col-sm-9">@Model.TransferNo</dd>
+
+            <dt class="col-sm-3">Kaynak Depo</dt>
+            <dd class="col-sm-9">@Model.KaynakDepoAdi</dd>
+
+            <dt class="col-sm-3">Hedef Depo</dt>
+            <dd class="col-sm-9">@Model.HedefDepoAdi</dd>
+
+            <dt class="col-sm-3">Transfer Tarihi</dt>
+            <dd class="col-sm-9">@Model.TransferTarihi.ToString("yyyy-MM-dd")</dd>
+
+            <dt class="col-sm-3">Seri No</dt>
+            <dd class="col-sm-9">@Model.SeriNo</dd>
+
+            <dt class="col-sm-3">Açıklama</dt>
+            <dd class="col-sm-9">@Model.Aciklama</dd>
+        </dl>
+
+        <a asp-action="Index" class="btn btn-secondary">← Listeye Dön</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Güncelle</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Sil</a>
+    </div>
+</div>
+

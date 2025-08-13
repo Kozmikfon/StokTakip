@@ -15,7 +15,7 @@ namespace StokTakip.Entities.Dtos.DepoTransferDetayDtos
         public string? MalzemeAdi { get; set; }
 
         public decimal Miktar { get; set; }
-
+        public string Aciklama { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime ModifiedTime { get; set; }
         public bool IsActive { get; set; }

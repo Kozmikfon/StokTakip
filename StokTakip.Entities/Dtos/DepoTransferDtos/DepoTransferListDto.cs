@@ -22,5 +22,11 @@ namespace StokTakip.Entities.Dtos.DepoTransferDtos
 
         [DisplayName("Transfer Tarihi")]
         public DateTime TransferTarihi { get; set; }
+        public DateTime CreatedTime { get; set; }
+
+        public string SeriNo  { get; set; }
+        public string  Aciklama { get; set; }
+
+
     }
 }

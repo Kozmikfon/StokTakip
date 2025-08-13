@@ -1,0 +1,63 @@
+﻿@model StokTakip.Entities.Dtos.DepoTransferDtos.DepoTransferCreateDto
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="TransferNo" class="control-label"></label>
+        <input asp-for="TransferNo" class="form-control" />
+        <span asp-validation-for="TransferNo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="KaynakDepoId" class="control-label"></label>
+        <select asp-for="KaynakDepoId" class="form-control"
+                asp-items="ViewBag.DepoListesi">
+            <option value="">-- Kaynak Depo Seçiniz --</option>
+        </select>
+        <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="HedefDepoId" class="control-label"></label>
+        <select asp-for="HedefDepoId" class="form-control"
+                asp-items="ViewBag.DepoListesi">
+            <option value="">-- Hedef Depo Seçiniz --</option>
+        </select>
+        <span asp-validation-for="HedefDepoId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TransferTarihi" class="control-label"></label>
+        <input asp-for="TransferTarihi" type="date" class="form-control" />
+        <span asp-validation-for="TransferTarihi" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Aciklama" class="control-label"></label>
+        <textarea asp-for="Aciklama" class="form-control"></textarea>
+        <span asp-validation-for="Aciklama" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SeriNo" class="control-label"></label>
+        <input asp-for="SeriNo" class="form-control" />
+        <span asp-validation-for="SeriNo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Transfer Oluştur</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

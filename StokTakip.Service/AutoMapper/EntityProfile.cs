@@ -74,14 +74,16 @@ namespace StokTakip.Service.AutoMapper
 
             CreateMap<DepoTransfer,DepoTransferDto>().ReverseMap();
             CreateMap<DepoTransfer, DepoTransferCreateDto>().ReverseMap();
-            CreateMap<DepoTransfer, DepoTransferListDto>().ReverseMap();
+            CreateMap<DepoTransfer, DepoTransferListDto>()
+             .ForMember(dest => dest.KaynakDepoAdi, opt => opt.MapFrom(src => src.kaynakDepo.depoAd))
+             .ForMember(dest => dest.HedefDepoAdi, opt => opt.MapFrom(src => src.hedefDepo.depoAd));
+
             CreateMap<DepoTransfer, DepoTransferUpdateDto>().ReverseMap();
 
             CreateMap<DepoTransferDetay, DepoTransferDetayDto>().ReverseMap();
             CreateMap<DepoTransferDetay, DepoTransferDetayCreateDto>().ReverseMap();
             
             CreateMap<DepoTransferDetay, DepoTransferDetayUpdateDto>().ReverseMap();
-
 
 
             // Irsaliye <-> CreateDto alan adı düzeltmeleri
@@ -94,6 +96,7 @@ namespace StokTakip.Service.AutoMapper
                 .ForMember(d => d.aciklama, o => o.MapFrom(s => s.Aciklama))
                 .ForMember(d => d.durum, o => o.MapFrom(s => s.Durum))
                 .ForMember(d => d.depoId, o => o.MapFrom(s => s.DepoId));
+
 
             // Irsaliye <-> UpdateDto
             CreateMap<IrsaliyeUpdateDto, Irsaliye>()

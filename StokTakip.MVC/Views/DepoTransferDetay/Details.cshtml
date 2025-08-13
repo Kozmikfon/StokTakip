@@ -1,0 +1,37 @@
+﻿@model StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayDto
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Depo Transfer Detay Bilgisi</h2>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Transfer ID</dt>
+            <dd class="col-sm-9">@Model.TransferId</dd>
+
+            <dt class="col-sm-3">Malzeme</dt>
+            <dd class="col-sm-9">@Model.MalzemeAdi (@Model.MalzemeId)</dd>
+
+            <dt class="col-sm-3">Miktar</dt>
+            <dd class="col-sm-9">@Model.Miktar</dd>
+
+            <dt class="col-sm-3">Açıklama</dt>
+            <dd class="col-sm-9">@Model.Aciklama</dd>
+
+            <dt class="col-sm-3">Oluşturulma Tarihi</dt>
+            <dd class="col-sm-9">@Model.CreatedTime.ToString("dd.MM.yyyy HH:mm")</dd>
+
+            <dt class="col-sm-3">Durum</dt>
+            <dd class="col-sm-9">
+                @(Model.IsActive ? "Aktif" : "Pasif") /
+                @(Model.IsDelete ? "Silinmiş" : "Silinmemiş")
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<a asp-action="Index" asp-route-transferId="@Model.TransferId" class="btn btn-secondary mt-3">Geri Dön</a>
+

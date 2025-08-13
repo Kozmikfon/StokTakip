@@ -22,7 +22,8 @@ namespace StokTakip.Data.Concrete
         private EfKullaniciRepository _efkullaniciRepository;
         private EfLogTakipRepository _eflogTakipRepository;
         private EfMalzemeRepository _efmalzemeRepository;
-        
+        private EfDepoTransferRepository _efdepoTransferRepository;
+
 
         public UnitOfWork(StokContext context)
         {
@@ -50,10 +51,11 @@ namespace StokTakip.Data.Concrete
         public ILogTakipRepository LogTakip => _eflogTakipRepository ??= new EfLogTakipRepository(_context);
 
         public IMalzemeRepository Malzeme => _efmalzemeRepository ??= new EfMalzemeRepository(_context);
+        public IDepoTransferRepository DepoTransfer => _efdepoTransferRepository ??= new EfDepoTransferRepository(_context);
 
         public DbContext Context => _context;
 
-        IDepoTransferRepository IUnitOfWork.DepoTransfer => throw new NotImplementedException();
+      //  IDepoTransferRepository IUnitOfWork.DepoTransfer => throw new NotImplementedException();
 
         public async ValueTask DisposeAsync()
         {

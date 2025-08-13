@@ -1,0 +1,57 @@
+﻿@model List<StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayDto>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int transferId = ViewBag.TransferId;
+}
+
+<h2>Transfer Detayları</h2>
+
+<div class="mb-3">
+    <a class="btn btn-primary" asp-action="Create" asp-route-transferId="@transferId">➕ Yeni Detay Ekle</a>
+    <a class="btn btn-secondary" asp-controller="DepoTransfer" asp-action="Index">⬅️ Transfer Listesine Dön</a>
+</div>
+
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Malzeme</th>
+                <th>Miktar</th>
+                <th>Açıklama</th>
+                <th>Oluşturan</th>
+                <th>Oluşturma Tarihi</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@Model[i].MalzemeAdi</td>
+                    <td>@Model[i].Miktar</td>
+                    <td>@Model[i].Aciklama</td>
+                    <td>@Model[i].CreatedByName</td>
+                    <td>@Model[i].CreatedTime.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        <a class="btn btn-danger btn-sm"
+                           asp-action="Delete"
+                           asp-route-id="@Model[i].Id"
+                           asp-route-transferId="@transferId"
+                           onclick="return confirm('Bu detayı silmek istediğinizden emin misiniz?');">
+                            🗑️ Sil
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">Henüz bu transfer için detay eklenmemiş.</div>
+}
+
