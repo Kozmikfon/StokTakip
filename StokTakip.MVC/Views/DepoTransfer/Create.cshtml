@@ -14,22 +14,17 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="KaynakDepoId" class="control-label"></label>
-        <select asp-for="KaynakDepoId" class="form-control"
-                asp-items="ViewBag.DepoListesi">
-            <option value="">-- Kaynak Depo Seçiniz --</option>
-        </select>
+        <label asp-for="KaynakDepoId"></label>
+        <select asp-for="KaynakDepoId" class="form-control" asp-items="ViewBag.KaynakDepolar"></select>
         <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="HedefDepoId" class="control-label"></label>
-        <select asp-for="HedefDepoId" class="form-control"
-                asp-items="ViewBag.DepoListesi">
-            <option value="">-- Hedef Depo Seçiniz --</option>
-        </select>
+        <label asp-for="HedefDepoId"></label>
+        <select asp-for="HedefDepoId" class="form-control" asp-items="ViewBag.HedefDepolar"></select>
         <span asp-validation-for="HedefDepoId" class="text-danger"></span>
     </div>
+
 
     <div class="form-group">
         <label asp-for="TransferTarihi" class="control-label"></label>

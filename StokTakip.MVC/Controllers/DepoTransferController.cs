@@ -13,11 +13,13 @@ namespace StokTakip.MVC.Controllers
     {
         private readonly IDepoTransferService _depoTransferService;
         private readonly IMalzemeService _malzemeService; 
+        private readonly IDepoService _depoService;
 
-        public DepoTransferController(IDepoTransferService depoTransferService, IMalzemeService malzemeService)
+        public DepoTransferController(IDepoTransferService depoTransferService, IMalzemeService malzemeService,IDepoService depoService)
         {
             _depoTransferService = depoTransferService;
             _malzemeService = malzemeService;
+            _depoService = depoService;
         }
 
         public async Task<IActionResult> Index()
@@ -27,30 +29,65 @@ namespace StokTakip.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int transferId)
+        public async Task<IActionResult> Create()
         {
-            var dto = new DepoTransferCreateDto();
-            return View(dto); // Burası Views/DepoTransfer/Create.cshtml açmalı
+            var depolar = await _depoService.GetAllAsync();
+            var selectList = depolar.Data.Select(d => new SelectListItem
+            {
+                Text = d.DepoAd,
+                Value = d.Id.ToString()
+            }).ToList();
+
+            ViewBag.KaynakDepolar = selectList;
+            ViewBag.HedefDepolar = selectList;
+
+            return View(new DepoTransferCreateDto());
         }
+
 
 
         [HttpPost]
         public async Task<IActionResult> Create(DepoTransferCreateDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                // Hatalı model durumunda dropdown'lar tekrar yüklenmeli
+                var depolar = await _depoService.GetAllAsync();
+                var selectList = depolar.Data.Select(d => new SelectListItem
+                {
+                    Text = d.DepoAd,
+                    Value = d.Id.ToString()
+                }).ToList();
+
+                ViewBag.KaynakDepolar = selectList;
+                ViewBag.HedefDepolar = selectList;
+
                 return View(dto);
+            }
 
             var result = await _depoTransferService.CreateAsync(dto);
 
             if (result.ResultStatus == ResultStatus.Success)
             {
-                TempData["SuccessMessage"] = result.Info; // örneğin: "Transfer başarıyla oluşturuldu"
+                TempData["SuccessMessage"] = result.Info;
                 return RedirectToAction("Create", "DepoTransferDetay", new { transferId = result.Data.Id });
             }
 
-            ModelState.AddModelError("", result.Info); // hata mesajı gösterilecek
+            // Başarısız durumda da dropdown'lar tekrar yüklenmeli
+            var depolarFail = await _depoService.GetAllAsync();
+            var selectListFail = depolarFail.Data.Select(d => new SelectListItem
+            {
+                Text = d.DepoAd,
+                Value = d.Id.ToString()
+            }).ToList();
+
+            ViewBag.KaynakDepolar = selectListFail;
+            ViewBag.HedefDepolar = selectListFail;
+
+            ModelState.AddModelError("", result.Info);
             return View(dto);
         }
+
 
 
         public async Task<IActionResult> Details(int id)
