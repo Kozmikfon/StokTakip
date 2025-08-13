@@ -66,7 +66,7 @@ namespace StokTakip.Service.Concrete
                 DepoId = transfer.hedefDepoId,
                 HareketTarihi = DateTime.Now,
                 Miktar = dto.Miktar,
-                HareketTipi = StokHareketTipi.IrsaliyeGiris,
+                HareketTipi = StokHareketTipi.TransferGiris,
                 ReferansId = dto.TransferId,
                 Aciklama = "Depo Transfer Girişi",
                 IsActive = true,

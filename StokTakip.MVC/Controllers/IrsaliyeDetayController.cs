@@ -47,10 +47,7 @@ namespace StokTakip.MVC.Controllers
             return Json(new { ok = true, data = res.Data });
         }
 
-        // --- DETAILS SAYFASI AKIŞI ---
 
-        // POST: /IrsaliyeDetay/Create
-        // Details sayfasındaki "Yeni Satır Ekle" formu buraya post eder.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int irsaliyeId, IrsaliyeDetayCreateDto model)
@@ -93,10 +90,6 @@ namespace StokTakip.MVC.Controllers
             return RedirectToAction("Details", "Irsaliye", new { id = irsaliyeId });
         }
 
-        // --- 2. ADIM “ENTRY” EKRANI AKIŞI (isteğe bağlı sihirbaz) ---
-
-        // GET: /IrsaliyeDetay/Entry?irsaliyeId=5
-        // Başlık kaydedildikten sonra özel detay giriş ekranı
         [HttpGet]
         public async Task<IActionResult> Entry(int irsaliyeId)
         {
