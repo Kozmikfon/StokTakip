@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using StokTakip.Entities.Dtos.DepoTransferDetayDtos;
 using StokTakip.Entities.Dtos.DepoTransferDtos;
 using StokTakip.Service.Abstract;
+using StokTakip.Service.Concrete;
 using StokTakip.Shared.Utilities.ComplexTypes;
 using System.Threading.Tasks;
 
@@ -9,10 +12,12 @@ namespace StokTakip.MVC.Controllers
     public class DepoTransferController : Controller
     {
         private readonly IDepoTransferService _depoTransferService;
+        private readonly IMalzemeService _malzemeService; 
 
-        public DepoTransferController(IDepoTransferService depoTransferService)
+        public DepoTransferController(IDepoTransferService depoTransferService, IMalzemeService malzemeService)
         {
             _depoTransferService = depoTransferService;
+            _malzemeService = malzemeService;
         }
 
         public async Task<IActionResult> Index()
@@ -21,10 +26,13 @@ namespace StokTakip.MVC.Controllers
             return View(result.Data); // List<DepoTransferListDto>
         }
 
-        public IActionResult Create()
+        [HttpGet]
+        public async Task<IActionResult> Create(int transferId)
         {
-            return View(); // View içine depo dropdown'ları koyarız
+            var dto = new DepoTransferCreateDto();
+            return View(dto); // Burası Views/DepoTransfer/Create.cshtml açmalı
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(DepoTransferCreateDto dto)
