@@ -26,28 +26,14 @@ namespace StokTakip.Service.Concrete
             _mapper = mapper;
         }
 
-        // -------------------- Helpers --------------------
-        private int GetSign(Irsaliye irs)
+        // ---- Helpers ----
+        private static int GetSign(IrsaliyeTipi tip) => tip switch
         {
-            return irs.irsaliyeTipi switch
-            {
-                IrsaliyeTipi.Giris => +1,
-                IrsaliyeTipi.Cikis => -1,
-                IrsaliyeTipi.Transfer => throw new InvalidOperationException("Transfer için GetSign kullanılmaz."),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
-
-        private int GetSignFromDto(IrsaliyeCreateDto dto)
-        {
-            return dto.IrsaliyeTipi switch
-            {
-                IrsaliyeTipi.Giris => +1,
-                IrsaliyeTipi.Cikis => -1,
-                IrsaliyeTipi.Transfer => throw new InvalidOperationException("Transfer için GetSign kullanılmaz."),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
+            IrsaliyeTipi.Giris => +1,
+            IrsaliyeTipi.Cikis => -1,
+            IrsaliyeTipi.Transfer => throw new InvalidOperationException("Transfer bu servisle işlenmiyor."),
+            _ => throw new ArgumentOutOfRangeException(nameof(tip))
+        };
 
         private async Task<Result> AdjustStockAsync(int depoId, int malzemeId, decimal delta)
         {
@@ -58,35 +44,29 @@ namespace StokTakip.Service.Concrete
             {
                 if (delta < 0)
                     return new Result(ResultStatus.Error, "Yetersiz stok (kayıt yok).");
-
                 stok = new Stok { DepoId = depoId, MalzemeId = malzemeId, Miktar = 0 };
                 isNew = true;
             }
 
-            var yeni = stok.Miktar + delta;
-            if (yeni < 0)
-                return new Result(ResultStatus.Error, "Yetersiz stok. İşlem iptal edildi.");
+            var yeniMiktar = stok.Miktar + delta;
+            if (yeniMiktar < 0)
+                return new Result(ResultStatus.Error, "Yetersiz stok.");
 
-            stok.Miktar = yeni;
-
-            if (isNew)
-                await _unitOfWork.Stok.AddAsync(stok);   // YENİ: sadece Add
-            else
-                await _unitOfWork.Stok.UpdateAsync(stok); // VAR OLAN: Update
+            stok.Miktar = yeniMiktar;
+            if (isNew) await _unitOfWork.Stok.AddAsync(stok);
+            else await _unitOfWork.Stok.UpdateAsync(stok);
 
             return new Result(ResultStatus.Success);
         }
 
-
-        // -------------------- READ --------------------
+        // ---- READ ----
         public async Task<IDataResult<IrsaliyeDto>> Get(int id)
         {
             var irs = await _unitOfWork.Irsaliye.GetAsync(x => x.Id == id);
             if (irs == null)
-                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "İrsaliye bulunamadı", null);
+                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "İrsaliye bulunamadı.", null);
 
             var detaylar = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == id);
-
             var dto = _mapper.Map<IrsaliyeDto>(irs);
             dto.Detaylar = _mapper.Map<List<IrsaliyeDetayDto>>(detaylar);
             return new DataResult<IrsaliyeDto>(ResultStatus.Success, dto);
@@ -99,199 +79,15 @@ namespace StokTakip.Service.Concrete
             return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
         }
 
-        public async Task<IDataResult<List<IrsaliyeListDto>>> GetAllByDepoIdAsync(int depoId)
-        {
-            var list = await _unitOfWork.Irsaliye.GetAllAsync(i => i.depoId == depoId);
-            var dtoList = _mapper.Map<List<IrsaliyeListDto>>(list);
-            return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
-        }
-
-        public async Task<IDataResult<List<IrsaliyeListDto>>> GetAllByMalzemeIdAsync(int malzemeId)
-        {
-            var irsIds = (await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.malzemeId == malzemeId))
-                        .Select(d => d.irsaliyeId)
-                        .Distinct()
-                        .ToList();
-
-            var list = await _unitOfWork.Irsaliye.GetAllAsync(i => irsIds.Contains(i.Id));
-            var dtoList = _mapper.Map<List<IrsaliyeListDto>>(list);
-            return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
-        }
-
-        public async Task<IDataResult<List<IrsaliyeListDto>>> GetAllByMalzemeIdAndDepoIdAsync(int malzemeId, int depoId)
-        {
-            var irsIds = (await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.malzemeId == malzemeId))
-                        .Select(d => d.irsaliyeId)
-                        .Distinct()
-                        .ToList();
-
-            var list = await _unitOfWork.Irsaliye.GetAllAsync(i => i.depoId == depoId && irsIds.Contains(i.Id));
-            var dtoList = _mapper.Map<List<IrsaliyeListDto>>(list);
-            return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
-        }
-
         public async Task<IDataResult<List<IrsaliyeListDto>>> GetAllByNonDeleteAndActionAsync()
         {
-            // i.AktifPasif alan adını projendeki gerçeğe göre güncelle
             var list = await _unitOfWork.Irsaliye.GetAllAsync(i => !i.IsDelete);
             var dtoList = _mapper.Map<List<IrsaliyeListDto>>(list);
             return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
         }
 
-        // -------------------- CREATE (stok etkili) --------------------s
-        public async Task<IDataResult<IrsaliyeDto>> Create(IrsaliyeCreateDto dto)
-        {
-            if (dto == null || dto.Detaylar == null || !dto.Detaylar.Any())
-                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "İrsaliye satırı yok.", null);
-
-            var irs = _mapper.Map<Irsaliye>(dto);
-            irs.CreatedTime = DateTime.Now;
-            await _unitOfWork.Irsaliye.AddAsync(irs);
-
-            var sign = GetSignFromDto(dto);
-
-            foreach (var line in dto.Detaylar)
-            {
-                var det = _mapper.Map<IrsaliyeDetay>(line);
-                det.irsaliye = irs; // navigation ile bağla
-                await _unitOfWork.IrsaliyeDetay.AddAsync(det);
-
-                var delta = sign * det.miktar;
-                var res = await AdjustStockAsync(dto.DepoId, det.malzemeId, delta);
-                if (res.ResultStatus != ResultStatus.Success)
-                    return new DataResult<IrsaliyeDto>(ResultStatus.Error, res.Info ?? "Stok güncellenemedi.", null);
-            }
-
-            await _unitOfWork.SaveAsync();
-
-            var outDto = _mapper.Map<IrsaliyeDto>(irs);
-            var savedDetaylar = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id);
-            outDto.Detaylar = _mapper.Map<List<IrsaliyeDetayDto>>(savedDetaylar);
-            return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
-        }
-
-        // -------------------- UPDATE (eskiyi geri al, yeniyi uygula) --------------------
-        public async Task<IDataResult<IrsaliyeDto>> Update(IrsaliyeUpdateDto dto)
-        {
-            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == dto.Id);
-            if (irs == null)
-                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "İrsaliye bulunamadı.", null);
-
-            var signOld = GetSign(irs);
-
-            // 1) Eski detayların stok etkisini geri al
-            var oldDetails = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id);
-            foreach (var od in oldDetails)
-            {
-                var reverseDelta = -signOld * od.miktar;
-                var res = await AdjustStockAsync(irs.depoId, od.malzemeId, reverseDelta);
-                if (res.ResultStatus != ResultStatus.Success)
-                    return new DataResult<IrsaliyeDto>(ResultStatus.Error, res.Info ?? "Stok geri alma başarısız.", null);
-            }
-
-            // 2) Başlık güncelle
-            _mapper.Map(dto, irs);
-            await _unitOfWork.Irsaliye.UpdateAsync(irs);
-
-            var signNew = GetSign(irs);
-
-            // 3) Eski satırları sil, yenilerini ekle
-            foreach (var od in oldDetails)
-                await _unitOfWork.IrsaliyeDetay.DeleteAsync(od);
-
-            if (dto.Detaylar == null || !dto.Detaylar.Any())
-                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "Güncellemede satır sağlanmadı.", null);
-
-            foreach (var ndto in dto.Detaylar)
-            {
-                var det = _mapper.Map<IrsaliyeDetay>(ndto);
-                det.irsaliyeId = irs.Id;
-                await _unitOfWork.IrsaliyeDetay.AddAsync(det);
-
-                var delta = signNew * det.miktar;
-                var res = await AdjustStockAsync(irs.depoId, det.malzemeId, delta);
-                if (res.ResultStatus != ResultStatus.Success)
-                    return new DataResult<IrsaliyeDto>(ResultStatus.Error, res.Info ?? "Stok güncellenemedi.", null);
-            }
-
-            await _unitOfWork.SaveAsync();
-
-            var outDto = _mapper.Map<IrsaliyeDto>(irs);
-            var newDetails = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id);
-            outDto.Detaylar = _mapper.Map<List<IrsaliyeDetayDto>>(newDetails);
-            return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
-        }
-
-        // -------------------- DELETE (stok tersle, sonra sil) --------------------
-        public async Task<IResult> Delete(int id)
-        {
-            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == id);
-            if (irs == null)
-                return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
-
-            var sign = GetSign(irs);
-            var details = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == id);
-
-            foreach (var d in details)
-            {
-                var reverse = -sign * d.miktar;
-                var res = await AdjustStockAsync(irs.depoId, d.malzemeId, reverse);
-                if (res.ResultStatus != ResultStatus.Success)
-                    return new Result(ResultStatus.Error, res.Info ?? "Stok geri alınamadı.");
-            }
-
-            foreach (var d in details)
-                await _unitOfWork.IrsaliyeDetay.DeleteAsync(d);
-
-            await _unitOfWork.Irsaliye.DeleteAsync(irs);
-            await _unitOfWork.SaveAsync();
-
-            return new Result(ResultStatus.Success, "İrsaliye silindi, stok geri alındı.");
-        }
-
-        // -------------------- Satır bazlı --------------------
-        public async Task<IResult> AddLineAsync(int irsaliyeId, IrsaliyeDetayCreateDto lineDto)
-        {
-            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId);
-            if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
-
-            var det = _mapper.Map<IrsaliyeDetay>(lineDto);
-            det.irsaliyeId = irsaliyeId;
-            await _unitOfWork.IrsaliyeDetay.AddAsync(det);
-
-            var sign = GetSign(irs);
-            var delta = sign * det.miktar;
-
-            var res = await AdjustStockAsync(irs.depoId, det.malzemeId, delta);
-            if (res.ResultStatus != ResultStatus.Success)
-                return new Result(ResultStatus.Error, res.Info ?? "Stok güncellenemedi.");
-
-            await _unitOfWork.SaveAsync();
-            return new Result(ResultStatus.Success, "Satır eklendi ve stok güncellendi.");
-        }
-
-        public async Task<IResult> RemoveLineAsync(int irsaliyeId, int detayId)
-        {
-            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId);
-            if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
-
-            var det = await _unitOfWork.IrsaliyeDetay.GetAsync(d => d.Id == detayId && d.irsaliyeId == irsaliyeId);
-            if (det == null) return new Result(ResultStatus.Error, "Detay bulunamadı.");
-
-            var sign = GetSign(irs);
-            var reverse = -sign * det.miktar;
-
-            var res = await AdjustStockAsync(irs.depoId, det.malzemeId, reverse);
-            if (res.ResultStatus != ResultStatus.Success)
-                return new Result(ResultStatus.Error, res.Info ?? "Stok geri alınamadı.");
-
-            await _unitOfWork.IrsaliyeDetay.DeleteAsync(det);
-            await _unitOfWork.SaveAsync();
-
-            return new Result(ResultStatus.Success, "Satır silindi ve stok geri alındı.");
-        }
-
-        // -------------------- Sadece Başlık (detaysız kayıt) --------------------
+        // ---- CREATE HEADER (Taslak) ----
+        // Tek sayfa akışı için ilk başlığı oluşturur; stok oynamaz.
         public async Task<IDataResult<IrsaliyeDto>> CreateHeaderAsync(IrsaliyeCreateDto headerDto)
         {
             if (headerDto == null)
@@ -299,6 +95,7 @@ namespace StokTakip.Service.Concrete
 
             var irs = _mapper.Map<Irsaliye>(headerDto);
             irs.CreatedTime = DateTime.Now;
+            irs.durum = IrsaliyeDurumu.Taslak;
 
             await _unitOfWork.Irsaliye.AddAsync(irs);
             await _unitOfWork.SaveAsync();
@@ -308,26 +105,175 @@ namespace StokTakip.Service.Concrete
             return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
         }
 
-        public async Task<IDataResult<List<IrsaliyeDto>>> GetAllByNonDeleteAsync()
+        // ---- UPSERT (Taslak’ta başlık + detaylar) ----
+        // Tek sayfadan gelen veriyi Taslak üzerinde günceller; stok oynamaz.
+        public async Task<IDataResult<IrsaliyeDto>> UpsertAsync(IrsaliyeUpdateDto dto)
         {
-            // Silinmemiş başlıkları çek
-            var headers = await _unitOfWork.Irsaliye.GetAllAsync(i => !i.IsDelete);
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == dto.Id);
+            if (irs == null)
+                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "İrsaliye bulunamadı.", null);
 
-            // IrsaliyeDto: Entity + Detaylar
-            var list = new List<IrsaliyeDto>();
-            foreach (var h in headers)
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new DataResult<IrsaliyeDto>(ResultStatus.Error, "Onaylı irsaliye güncellenemez.", null);
+
+            // Başlık alanlarını güncelle
+            _mapper.Map(dto, irs);
+            await _unitOfWork.Irsaliye.UpdateAsync(irs);
+
+            // Detay upsert: basit yaklaşım → eski satırları sil, yenilerini ekle (Taslakta serbest)
+            var oldDetails = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id);
+            foreach (var od in oldDetails)
+                await _unitOfWork.IrsaliyeDetay.DeleteAsync(od);
+
+            if (dto.Detaylar != null && dto.Detaylar.Any())
             {
-                var dto = _mapper.Map<IrsaliyeDto>(h);
-
-                // Detayları getir ve map et
-                var dets = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == h.Id);
-                dto.Detaylar = _mapper.Map<List<IrsaliyeDetayDto>>(dets);
-
-                list.Add(dto);
+                foreach (var ndto in dto.Detaylar)
+                {
+                    var det = _mapper.Map<IrsaliyeDetay>(ndto);
+                    det.irsaliyeId = irs.Id;
+                    det.araToplam = det.miktar * det.birimFiyat;
+                    await _unitOfWork.IrsaliyeDetay.AddAsync(det);
+                }
             }
 
-            return new DataResult<List<IrsaliyeDto>>(ResultStatus.Success, list);
+            // Toplam (görsel amaçlı) başlığa yazılabilir
+            var newDetails = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id);
+            irs.toplamTutar = newDetails.Sum(x => x.miktar * x.birimFiyat);
+
+            await _unitOfWork.SaveAsync();
+
+            var outDto = _mapper.Map<IrsaliyeDto>(irs);
+            outDto.Detaylar = _mapper.Map<List<IrsaliyeDetayDto>>(newDetails);
+            return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
         }
 
+        // ---- DELETE (Sadece Taslak) ----
+        public async Task<IResult> Delete(int id)
+        {
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == id);
+            if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
+
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new Result(ResultStatus.Error, "Onaylı irsaliye silinemez.");
+
+            var details = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == id);
+            foreach (var d in details)
+                await _unitOfWork.IrsaliyeDetay.DeleteAsync(d);
+
+            await _unitOfWork.Irsaliye.DeleteAsync(irs);
+            await _unitOfWork.SaveAsync();
+
+            return new Result(ResultStatus.Success, "Taslak irsaliye silindi.");
+        }
+
+        // ---- TALep/ONAY (Stok burada uygulanır) ----
+        public async Task<IResult> TalepOlusturAsync(int irsaliyeId)
+        {
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId);
+            if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new Result(ResultStatus.Error, "İrsaliye zaten onaylı.");
+
+            if (irs.irsaliyeTipi == IrsaliyeTipi.Transfer)
+                return new Result(ResultStatus.Error, "Transfer bu akışta onaylanmaz.");
+
+            var details = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id);
+            if (details == null || !details.Any())
+                return new Result(ResultStatus.Error, "İrsaliyede satır yok.");
+
+            var sign = GetSign(irs.irsaliyeTipi);
+
+            // 1) Çıkış ise yeterlilik kontrolü
+            if (irs.irsaliyeTipi == IrsaliyeTipi.Cikis)
+            {
+                foreach (var d in details)
+                {
+                    var stok = await _unitOfWork.Stok.GetAsync(s => s.DepoId == irs.depoId && s.MalzemeId == d.malzemeId);
+                    var mevcut = stok?.Miktar ?? 0;
+                    if (mevcut < d.miktar)
+                        return new Result(ResultStatus.Error, $"Yetersiz stok: MalzemeId={d.malzemeId}, gerekli={d.miktar}, mevcut={mevcut}.");
+                }
+            }
+
+            // 2) Stok uygula
+            foreach (var d in details)
+            {
+                var delta = sign * d.miktar;
+                var res = await AdjustStockAsync(irs.depoId, d.malzemeId, delta);
+                if (res.ResultStatus != ResultStatus.Success)
+                    return new Result(ResultStatus.Error, res.Info ?? "Stok güncellenemedi.");
+            }
+
+            // 3) Onayla + toplamı hesapla + kilitle
+            irs.durum = IrsaliyeDurumu.Onayli;
+            irs.toplamTutar = details.Sum(x => x.miktar * x.birimFiyat);
+            await _unitOfWork.Irsaliye.UpdateAsync(irs);
+
+            await _unitOfWork.SaveAsync();
+            return new Result(ResultStatus.Success, "İrsaliye onaylandı ve stok uygulandı.");
+        }
+
+        // ---- Satır Bazlı (Taslak’ta serbest, Onaylı’da yasak) ----
+        public async Task<IResult> AddLineAsync(int irsaliyeId, IrsaliyeDetayCreateDto lineDto)
+        {
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId);
+            if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new Result(ResultStatus.Error, "Onaylı irsaliyeye satır eklenemez.");
+
+            var det = _mapper.Map<IrsaliyeDetay>(lineDto);
+            det.irsaliyeId = irsaliyeId;
+            det.araToplam = det.miktar * det.birimFiyat;
+
+            await _unitOfWork.IrsaliyeDetay.AddAsync(det);
+            await _unitOfWork.SaveAsync();
+            return new Result(ResultStatus.Success, "Satır eklendi (Taslak).");
+        }
+
+        public async Task<IResult> RemoveLineAsync(int irsaliyeId, int detayId)
+        {
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId);
+            if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new Result(ResultStatus.Error, "Onaylı irsaliyeden satır silinemez.");
+
+            var det = await _unitOfWork.IrsaliyeDetay.GetAsync(d => d.Id == detayId && d.irsaliyeId == irsaliyeId);
+            if (det == null) return new Result(ResultStatus.Error, "Detay bulunamadı.");
+
+            await _unitOfWork.IrsaliyeDetay.DeleteAsync(det);
+            await _unitOfWork.SaveAsync();
+
+            return new Result(ResultStatus.Success, "Satır silindi (Taslak).");
+        }
+
+        public Task<IDataResult<List<IrsaliyeListDto>>> GetAllByMalzemeIdAsync(int malzemeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataResult<List<IrsaliyeListDto>>> GetAllByDepoIdAsync(int depoId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataResult<List<IrsaliyeListDto>>> GetAllByMalzemeIdAndDepoIdAsync(int malzemeId, int depoId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataResult<IrsaliyeDto>> Create(IrsaliyeCreateDto irsaliyeCreateDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataResult<IrsaliyeDto>> Update(IrsaliyeUpdateDto irsaliyeUpdateDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDataResult<List<IrsaliyeDto>>> GetAllByNonDeleteAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

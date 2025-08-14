@@ -3,9 +3,6 @@ using StokTakip.Entities.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StokTakip.Entities.Dtos.IrsaliyeDtos
 {
@@ -15,16 +12,26 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
         public int Id { get; set; }
 
         [Required]
-        public DateTime Tarih { get; set; }
+        public string IrsaliyeNo { get; set; } = null!;
+
+        [Required]
+        public int CarId { get; set; }
+
+        [Required]
+        public DateTime IrsaliyeTarihi { get; set; }
 
         [Required]
         public int DepoId { get; set; }
 
+        // Bu akışta Transfer işlenmiyor; istersen şimdilik null bırak
         public int? HedefDepoId { get; set; }
 
         [Required]
         public IrsaliyeTipi IrsaliyeTipi { get; set; }
 
+        public string? Aciklama { get; set; }
+
+        // Tek sayfadan gelen satırlar: upsert mantığı için CreateDto yeterli
         public List<IrsaliyeDetayCreateDto>? Detaylar { get; set; }
     }
 }

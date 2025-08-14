@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using StokTakip.Entities.Enums;
 using StokTakip.Shared.Entities.Abstract;
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,9 @@ namespace StokTakip.Entities.Concrete
         [DisplayName("İrsaliye Tarihi:")]
         public DateTime irsaliyeTarihi { get; set; } = DateTime.Now;
 
-        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        
         [DisplayName("toplam Tutar:")]
-        public decimal toplamTutar { get; set; }
+        public decimal? toplamTutar { get; set; }
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("İrsaliye Tipi:")]
@@ -44,7 +45,7 @@ namespace StokTakip.Entities.Concrete
 
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("Durum:")]
-        public bool durum { get; set; }
+        public IrsaliyeDurumu durum { get; set; } = IrsaliyeDurumu.Taslak; // <- bool → enum
 
 
         [BindNever]
@@ -57,6 +58,11 @@ namespace StokTakip.Entities.Concrete
 
         [ForeignKey(nameof(depoId))]
         public Depo? depo { get; set; }
+
+
+        [Required(ErrorMessage = "Bu alan boş geçilemez")]
+        [DisplayName("Durum:")]
+        
 
 
         public ICollection<IrsaliyeDetay> irsaliyeDetaylari { get; set; } = new List<IrsaliyeDetay>();

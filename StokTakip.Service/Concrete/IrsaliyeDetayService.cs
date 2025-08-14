@@ -7,7 +7,6 @@ using StokTakip.Service.Abstract;
 using StokTakip.Shared.Utilities.Abstract;
 using StokTakip.Shared.Utilities.ComplexTypes;
 using StokTakip.Shared.Utilities.Concrete;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,106 +24,35 @@ namespace StokTakip.Service.Concrete
             _mapper = mapper;
         }
 
-        // ----- Helpers -----
-        private static int GetSign(IrsaliyeTipi tip) => tip switch
-        {
-            IrsaliyeTipi.Giris => +1,
-            IrsaliyeTipi.Cikis => -1,
-            _ => throw new InvalidOperationException("Transfer burada işlenmiyor.")
-        };
-
-        private async Task<Result> AdjustStockAsync(int depoId, int malzemeId, decimal delta)
-        {
-            var stok = await _unitOfWork.Stok.GetAsync(s => s.DepoId == depoId && s.MalzemeId == malzemeId);
-            var isNew = false;
-
-            if (stok == null)
-            {
-                if (delta < 0)
-                    return new Result(ResultStatus.Error, "Yetersiz stok (kayıt yok).");
-
-                stok = new Stok { DepoId = depoId, MalzemeId = malzemeId, Miktar = 0 };
-                isNew = true;
-            }
-
-            var yeni = stok.Miktar + delta;
-            if (yeni < 0)
-                return new Result(ResultStatus.Error, "Yetersiz stok. İşlem iptal edildi.");
-
-            stok.Miktar = yeni;
-
-            if (isNew)
-                await _unitOfWork.Stok.AddAsync(stok);   // YENİ: sadece Add
-            else
-                await _unitOfWork.Stok.UpdateAsync(stok); // VAR OLAN: Update
-
-            return new Result(ResultStatus.Success);
-        }
-
-
-        // ----- CREATE -----
+        // ----- CREATE (Taslakta; stok oynamaz) -----
         public async Task<IDataResult<IrsaliyeDetayDto>> CreateAsync(IrsaliyeDetayCreateDto dto)
         {
             if (dto == null)
                 return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, "Geçersiz veri.", null);
 
+            // BUG FIX: dto.Id değil, dto.irsaliyeId
             var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == dto.irsaliyeId);
             if (irs == null)
                 return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, "İrsaliye bulunamadı.", null);
 
-            var sign = GetSign(irs.irsaliyeTipi);
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, "Onaylı irsaliyeye satır eklenemez.", null);
 
-            // 1. Stok güncelle (miktar olarak)
-            var stokResult = await AdjustStockAsync(irs.depoId, dto.malzemeId, sign * dto.miktar);
-            if (stokResult.ResultStatus != ResultStatus.Success)
-                return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, stokResult.Info ?? "Stok güncellenemedi.", null);
-
-            // 2. İrsaliye Detay oluştur
             var detay = _mapper.Map<IrsaliyeDetay>(dto);
-            detay.araToplam = dto.miktar * dto.birimFiyat;
+            detay.araToplam = detay.miktar * detay.birimFiyat;
 
             await _unitOfWork.IrsaliyeDetay.AddAsync(detay);
             await _unitOfWork.SaveAsync();
 
-            // 3. Eğer GİRİŞ ise stok hareketi kayıt (detaya referanslı)
-            if (irs.irsaliyeTipi == IrsaliyeTipi.Giris)
-            {
-                var stok = new Stok
-                {
-                    DepoId = irs.depoId,
-                    MalzemeId = dto.malzemeId,
-                    Miktar = dto.miktar,
-                    HareketTipi = StokHareketTipi.IrsaliyeGiris,
-                    HareketTarihi = DateTime.Now,
-                    ReferansId = detay.Id,
-                    Aciklama = "İrsaliye üzerinden otomatik giriş",
-                    carId = irs.carId,
-                    SeriNo = dto.seriNo,
-                    CreatedByName = "Admin", // ileride login kullanıcıdan al
-                    ModifiedByName = "Admin",
-                    IsActive = true,
-                    IsDelete = false,
-                    CreatedTime = DateTime.Now,
-                    ModifiedTime = DateTime.Now
-                };
+            // İsteğe bağlı: navigation yükleme (gerekirse)
+            // await _unitOfWork.Context.Entry(detay).Reference(d => d.irsaliye).LoadAsync();
+            // await _unitOfWork.Context.Entry(detay).Reference(d => d.malzeme).LoadAsync();
 
-                await _unitOfWork.Stok.AddAsync(stok);
-                await _unitOfWork.SaveAsync();
-            }
-
-            // 4. Navigation yükle
-            await _unitOfWork.Context.Entry(detay).Reference(d => d.irsaliye).LoadAsync();
-            await _unitOfWork.Context.Entry(detay).Reference(d => d.malzeme).LoadAsync();
-
-            // 5. DTO’ya maple
             var outDto = _mapper.Map<IrsaliyeDetayDto>(detay);
-            return new DataResult<IrsaliyeDetayDto>(ResultStatus.Success, "İrsaliye detay oluşturuldu ve stok kaydı yapıldı.", outDto);
+            return new DataResult<IrsaliyeDetayDto>(ResultStatus.Success, "Satır eklendi (Taslak).", outDto);
         }
 
-
-
-
-        // ----- DELETE (stok geri al + detay sil) -----
+        // ----- DELETE (Taslakta; stok oynamaz) -----
         public async Task<IResult> DeleteAsync(int detayId)
         {
             var detay = await _unitOfWork.IrsaliyeDetay.GetAsync(d => d.Id == detayId);
@@ -135,33 +63,26 @@ namespace StokTakip.Service.Concrete
             if (irs == null)
                 return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
 
-            var sign = GetSign(irs.irsaliyeTipi);
-            var reverse = -sign * detay.miktar;
-
-            var res = await AdjustStockAsync(irs.depoId, detay.malzemeId, reverse);
-            if (res.ResultStatus != ResultStatus.Success)
-                return new Result(ResultStatus.Error, res.Info ?? "Stok geri alınamadı.");
+            if (irs.durum != IrsaliyeDurumu.Taslak)
+                return new Result(ResultStatus.Error, "Onaylı irsaliyeden satır silinemez.");
 
             await _unitOfWork.IrsaliyeDetay.DeleteAsync(detay);
             await _unitOfWork.SaveAsync();
 
-            return new Result(ResultStatus.Success, "Detay silindi ve stok geri alındı.");
+            return new Result(ResultStatus.Success, "Satır silindi (Taslak).");
         }
 
         // ----- LIST by header -----
         public async Task<IDataResult<List<IrsaliyeDetayDto>>> GetByIrsaliyeIdAsync(int irsaliyeId)
         {
-            // Navigation property'leri Include ile dahil et
             var list = await _unitOfWork.IrsaliyeDetay.GetAllAsync(
-                 x => x.irsaliyeId == irsaliyeId,
-                 x => x.irsaliye,
-                 x => x.malzeme
-    );
-
+                x => x.irsaliyeId == irsaliyeId,
+                x => x.irsaliye,
+                x => x.malzeme
+            );
 
             var dtoList = _mapper.Map<List<IrsaliyeDetayDto>>(list);
             return new DataResult<List<IrsaliyeDetayDto>>(ResultStatus.Success, dtoList);
         }
-
     }
 }
