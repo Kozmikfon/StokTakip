@@ -1,58 +1,55 @@
-﻿@using StokTakip.Entities.Dtos.IrsaliyeDtos
-@model List<IrsaliyeDto>
+﻿@model List<StokTakip.Entities.Dtos.IrsaliyeDtos.IrsaliyeListDto>
+@using StokTakip.Entities.Enums
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>İrsaliyeler</h3>
+        <a class="btn btn-primary" href="@Url.Action("Edit", "Irsaliye")">Yeni İrsaliye</a>
+    </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>@ViewData["Title"]</h3>
-    <a class="btn btn-primary" asp-action="Create">Yeni İrsaliye</a>
-</div>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+    }
 
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">Kayıt yok.</div>
-}
-else
-{
-    <table class="table table-striped table-hover">
+    <table class="table table-striped mt-3">
         <thead>
             <tr>
                 <th>No</th>
-                <th>Cari</th>
                 <th>Tarih</th>
-                <th>Depo</th>
                 <th>Tip</th>
-                <th class="text-end">Toplam</th>
                 <th>Durum</th>
-                <th style="width:140px"></th>
+                <th class="text-end">Toplam</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var x in Model)
+            @foreach (var i in Model)
             {
-                var h = x.Irsaliye;
                 <tr>
-                    <td>@h.irsaliyeNo</td>
-                    <td>@h.carId</td> <!-- İstersen cari.unvan gösterirsin Include/map ile -->
-                    <td>@h.irsaliyeTarihi.ToString("dd.MM.yyyy")</td>
-                    <td>@h.depoId</td> <!-- İstersen depo.depoAd gösterirsin -->
-                    <td>@h.irsaliyeTipi</td>
-                    <td class="text-end">@h.toplamTutar.ToString("N2")</td>
-                    <td>@(h.durum ? "Aktif" : "Pasif")</td>
+                    <td>@i.irsaliyeNo</td>
+                    <td>@i.irsaliyeTarihi.ToString("g")</td>
+                    <td>@i.irsaliyeTipi</td>
+                    <td>
+                        <span class="badge @(i.durum == IrsaliyeDurumu.Onayli ? "bg-success" : "bg-secondary")">
+                            @(i.durum == IrsaliyeDurumu.Onayli ? "Onaylı" : "Taslak")
+                        </span>
+                    </td>
+                    <td class="text-end">@i.toplamTutar?.ToString("0.00")</td>
                     <td class="text-end">
-                        <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@h.Id">Detay</a>
-                        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@h.Id">Düzenle</a>
-                        <form class="d-inline" asp-action="Delete" method="post" onsubmit="return confirm('Silinsin mi?');">
-                            <input type="hidden" name="id" value="@h.Id" />
-                            <button type="submit" class="btn btn-sm btn-danger">Sil</button>
-                            @Html.AntiForgeryToken()
-                        </form>
+                        <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Edit", "Irsaliye", new { id = i.Id })">Aç</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-}
+</div>
+
 

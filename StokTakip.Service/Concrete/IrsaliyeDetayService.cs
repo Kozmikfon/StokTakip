@@ -4,6 +4,7 @@ using StokTakip.Entities.Concrete;
 using StokTakip.Entities.Dtos.IrsaliyeDetayDtos;
 using StokTakip.Entities.Enums;
 using StokTakip.Service.Abstract;
+using StokTakip.Shared.Entities.Abstract;
 using StokTakip.Shared.Utilities.Abstract;
 using StokTakip.Shared.Utilities.ComplexTypes;
 using StokTakip.Shared.Utilities.Concrete;
@@ -24,14 +25,20 @@ namespace StokTakip.Service.Concrete
             _mapper = mapper;
         }
 
-        // ----- CREATE (Taslakta; stok oynamaz) -----
+        private static void SoftDeleteEntity(EntityBase e)
+        {
+            e.IsDelete = true;
+            e.IsActive = false;
+            e.ModifiedTime = System.DateTime.Now;
+        }
+
+        // CREATE (Taslak; stok oynamaz)
         public async Task<IDataResult<IrsaliyeDetayDto>> CreateAsync(IrsaliyeDetayCreateDto dto)
         {
             if (dto == null)
                 return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, "Geçersiz veri.", null);
 
-            // BUG FIX: dto.Id değil, dto.irsaliyeId
-            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == dto.irsaliyeId);
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == dto.irsaliyeId && !i.IsDelete);
             if (irs == null)
                 return new DataResult<IrsaliyeDetayDto>(ResultStatus.Error, "İrsaliye bulunamadı.", null);
 
@@ -40,43 +47,44 @@ namespace StokTakip.Service.Concrete
 
             var detay = _mapper.Map<IrsaliyeDetay>(dto);
             detay.araToplam = detay.miktar * detay.birimFiyat;
+            detay.IsActive = true;
+            detay.IsDelete = false;
+            detay.CreatedTime = System.DateTime.Now;
+            detay.ModifiedTime = System.DateTime.Now;
 
             await _unitOfWork.IrsaliyeDetay.AddAsync(detay);
             await _unitOfWork.SaveAsync();
-
-            // İsteğe bağlı: navigation yükleme (gerekirse)
-            // await _unitOfWork.Context.Entry(detay).Reference(d => d.irsaliye).LoadAsync();
-            // await _unitOfWork.Context.Entry(detay).Reference(d => d.malzeme).LoadAsync();
 
             var outDto = _mapper.Map<IrsaliyeDetayDto>(detay);
             return new DataResult<IrsaliyeDetayDto>(ResultStatus.Success, "Satır eklendi (Taslak).", outDto);
         }
 
-        // ----- DELETE (Taslakta; stok oynamaz) -----
+        // DELETE (Soft; Taslak)
         public async Task<IResult> DeleteAsync(int detayId)
         {
-            var detay = await _unitOfWork.IrsaliyeDetay.GetAsync(d => d.Id == detayId);
+            var detay = await _unitOfWork.IrsaliyeDetay.GetAsync(d => d.Id == detayId && !d.IsDelete);
             if (detay == null)
                 return new Result(ResultStatus.Error, "Detay bulunamadı.");
 
-            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == detay.irsaliyeId);
+            var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == detay.irsaliyeId && !i.IsDelete);
             if (irs == null)
                 return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
 
             if (irs.durum != IrsaliyeDurumu.Taslak)
                 return new Result(ResultStatus.Error, "Onaylı irsaliyeden satır silinemez.");
 
-            await _unitOfWork.IrsaliyeDetay.DeleteAsync(detay);
-            await _unitOfWork.SaveAsync();
+            SoftDeleteEntity(detay);
+            await _unitOfWork.IrsaliyeDetay.UpdateAsync(detay);
 
-            return new Result(ResultStatus.Success, "Satır silindi (Taslak).");
+            await _unitOfWork.SaveAsync();
+            return new Result(ResultStatus.Success, "Satır silindi (soft).");
         }
 
-        // ----- LIST by header -----
+        // LIST
         public async Task<IDataResult<List<IrsaliyeDetayDto>>> GetByIrsaliyeIdAsync(int irsaliyeId)
         {
             var list = await _unitOfWork.IrsaliyeDetay.GetAllAsync(
-                x => x.irsaliyeId == irsaliyeId,
+                x => x.irsaliyeId == irsaliyeId && !x.IsDelete,
                 x => x.irsaliye,
                 x => x.malzeme
             );

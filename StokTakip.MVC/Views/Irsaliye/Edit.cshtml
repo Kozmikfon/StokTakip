@@ -1,126 +1,250 @@
-﻿@using StokTakip.Entities.Dtos.IrsaliyeDtos
-@using StokTakip.Entities.Dtos.IrsaliyeDetayDtos
-@model IrsaliyeUpdateDto
+﻿@model StokTakip.Entities.ViewModels.IrsaliyePageVm
+@using StokTakip.Entities.Dtos.IrsaliyeDtos
+@using StokTakip.Entities.Enums
+
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var isOnayli = Model.IsOnayli;
 }
 
-<h3>@ViewData["Title"]</h3>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
 
-<form asp-action="Edit" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
+<div class="container py-3">
+    <h3>
+        İrsaliye Düzenle
+        <span class="badge @(isOnayli ? "bg-success" : "bg-secondary")">
+            @(isOnayli ? "Onaylı" : "Taslak")
+        </span>
+    </h3>
 
-    <div class="card mb-3">
-        <div class="card-body row g-3">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="Save" asp-controller="Irsaliye" method="post" class="card p-3 mb-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="PostModel.Id" />
+
+        <div class="row g-3">
             <div class="col-md-3">
-                <label asp-for="DepoId" class="form-label">Depo</label>
-                <select asp-for="DepoId" class="form-select" asp-items="ViewBag.Depolar"></select>
-                <span asp-validation-for="DepoId" class="text-danger"></span>
+                <label class="form-label">İrsaliye No</label>
+                <input class="form-control" asp-for="PostModel.IrsaliyeNo" readonly="@isOnayli" />
+                <span class="text-danger" asp-validation-for="PostModel.IrsaliyeNo"></span>
             </div>
+
             <div class="col-md-3">
-                <label asp-for="Tarih" class="form-label"></label>
-                <input asp-for="Tarih" type="date" class="form-control" />
-                <span asp-validation-for="Tarih" class="text-danger"></span>
+                <label class="form-label">Cari</label>
+                <select class="form-select" asp-for="PostModel.CarId" asp-items="Model.Cariler" disabled="@isOnayli"></select>
+                <span class="text-danger" asp-validation-for="PostModel.CarId"></span>
             </div>
+
             <div class="col-md-3">
-                <label asp-for="IrsaliyeTipi" class="form-label"></label>
-                <select asp-for="IrsaliyeTipi" class="form-select" asp-items="Html.GetEnumSelectList<StokTakip.Entities.Enums.IrsaliyeTipi>()"></select>
-                <span asp-validation-for="IrsaliyeTipi" class="text-danger"></span>
+                <label class="form-label">Depo</label>
+                <select class="form-select" asp-for="PostModel.DepoId" asp-items="Model.Depolar" disabled="@isOnayli"></select>
+                <span class="text-danger" asp-validation-for="PostModel.DepoId"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Tarih</label>
+                <input type="datetime-local" class="form-control" asp-for="PostModel.IrsaliyeTarihi" readonly="@isOnayli" />
+                <span class="text-danger" asp-validation-for="PostModel.IrsaliyeTarihi"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">İrsaliye Tipi</label>
+                <select class="form-select" asp-for="PostModel.IrsaliyeTipi" disabled="@isOnayli">
+                    <option value="@IrsaliyeTipi.Giris">Giriş</option>
+                    <option value="@IrsaliyeTipi.Cikis">Çıkış</option>
+                </select>
+                <span class="text-danger" asp-validation-for="PostModel.IrsaliyeTipi"></span>
+            </div>
+
+            <div class="col-md-9">
+                <label class="form-label">Açıklama</label>
+                <input class="form-control" asp-for="PostModel.Aciklama" readonly="@isOnayli" />
+                <span class="text-danger" asp-validation-for="PostModel.Aciklama"></span>
             </div>
         </div>
-    </div>
 
-    <h5>Satırlar</h5>
-    <table class="table table-sm table-bordered align-middle" id="detayTable">
-        <thead>
-            <tr>
-                <th style="width:40%">Malzeme</th>
-                <th class="text-end" style="width:15%">Miktar</th>
-                <th class="text-end" style="width:15%">Birim Fiyat</th>
-                <th style="width:25%">Seri No</th>
-                <th style="width:5%"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                var count = Model.Detaylar?.Count ?? 0;
-                for (int i = 0; i < count; i++)
-                {
-                    <tr>
-                        <td>
-                            <select class="form-select" name="Detaylar[@i].malzemeId" required asp-items="ViewBag.Malzemeler"></select>
-                        </td>
-                        <td>
-                            <input class="form-control text-end miktar" name="Detaylar[@i].miktar" type="number" step="0.001" min="0" value="@Model.Detaylar[i].miktar" required />
-                        </td>
-                        <td>
-                            <input class="form-control text-end fiyat" name="Detaylar[@i].birimFiyat" type="number" step="0.01" min="0" value="@Model.Detaylar[i].birimFiyat" required />
-                        </td>
-                        <td>
-                            <input class="form-control" name="Detaylar[@i].seriNo" value="@Model.Detaylar[i].seriNo" />
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger remove-row">&times;</button>
-                        </td>
-                    </tr>
-                }
+
+        @if (!isOnayli)
+        {
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet (Taslak)</button>
+
+                <form asp-action="TalepOlustur" asp-controller="Irsaliye" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.PostModel.Id" />
+                    <button type="submit" class="btn btn-success">Talep Oluştur (Onayla)</button>
+                </form>
+
+                <form asp-action="Delete" asp-controller="Irsaliye" method="post" class="d-inline" onsubmit="return confirm('Silinsin mi?');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.PostModel.Id" />
+                    <button type="submit" class="btn btn-outline-danger">Sil</button>
+                </form>
+            </div>
+        }
+    </form>
+
+    <!-- DETAY GRID -->
+    <div class="card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="mb-3">Detaylar</h5>
+            @if (!isOnayli)
+            {
+                <div class="d-flex gap-2">
+                    <select id="ddlMalzeme" class="form-select" style="min-width:220px;">
+                        @foreach (var item in Model.Malzemeler)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <input id="txtMiktar" class="form-control" type="number" step="0.0001" min="0" placeholder="Miktar" />
+                    <input id="txtBirimFiyat" class="form-control" type="number" step="0.01" min="0" placeholder="Birim Fiyat" />
+                    <input id="txtSeriNo" class="form-control" type="text" placeholder="Seri No" />
+                    <button id="btnAddLine" class="btn btn-secondary">Satır Ekle</button>
+                </div>
             }
-        </tbody>
-    </table>
+        </div>
 
-    <div class="d-flex gap-2 mb-3">
-        <button type="button" id="addRow" class="btn btn-outline-primary">Satır Ekle</button>
-        <button type="submit" class="btn btn-success ms-auto">Kaydet</button>
-        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Vazgeç</a>
+        <table class="table table-sm table-striped align-middle" id="detayTable">
+            <thead>
+                <tr>
+                    <th>Malzeme</th>
+                    <th class="text-end">Miktar</th>
+                    <th class="text-end">Birim Fiyat</th>
+                    <th class="text-end">Ara Toplam</th>
+                    <th style="width:80px;"></th>
+                </tr>
+            </thead>
+            <tbody id="detayBody">
+            @foreach (var d in Model.Irsaliye.Detaylar)
+            {
+                <tr data-id="@d.Id" data-malzemeid="@d.malzemeId">
+                    <td>@(d.malzemeAd ?? d.malzemeId.ToString())</td>
+                    <td class="text-end">@d.miktar</td>
+                    <td class="text-end">@d.birimFiyat</td>
+                    <td class="text-end">@d.araToplam</td>
+                    <td class="text-end">
+                        @if (!isOnayli)
+                        {
+                            <button class="btn btn-sm btn-outline-danger btnRemove">Sil</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end">Genel Toplam</th>
+                    <th class="text-end" id="genelToplam">@Model.Irsaliye.toplamTutar?.ToString("0.00")</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
     </div>
-</form>
+</div>
 
-@section Scripts {
+@section Scripts{
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script>
-        (function(){
-            const tbody = document.querySelector('#detayTable tbody');
-            const addBtn = document.getElementById('addRow');
-
-            function bindRowEvents(tr){
-                const remove = tr.querySelector('.remove-row');
-                if(remove){
-                    remove.addEventListener('click', ()=>{ tr.remove(); renumber(); });
-                }
-            }
-            function renumber(){
-                const rows = tbody.querySelectorAll('tr');
-                rows.forEach((tr, i)=>{
-                    tr.querySelectorAll('select, input').forEach(el=>{
-                        ['name','id'].forEach(attr=>{
-                            if(el.hasAttribute(attr)){
-                                el.setAttribute(attr, el.getAttribute(attr).replace(/\Detaylar\[\d+\]/, 'Detaylar['+i+']'));
-                            }
-                        });
-                    });
-                });
-            }
-            addBtn?.addEventListener('click', ()=>{
-                const i = tbody.querySelectorAll('tr').length;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <select class="form-select" name="Detaylar[${i}].malzemeId" required>
-                            ${(document.querySelector('select[name^="Detaylar[0].malzemeId"]')?.innerHTML) || ''}
-                        </select>
-                    </td>
-                    <td><input class="form-control text-end miktar" name="Detaylar[${i}].miktar" type="number" step="0.001" min="0" required /></td>
-                    <td><input class="form-control text-end fiyat" name="Detaylar[${i}].birimFiyat" type="number" step="0.01" min="0" required /></td>
-                    <td><input class="form-control" name="Detaylar[${i}].seriNo" /></td>
-                    <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row">&times;</button></td>`;
-                tbody.appendChild(tr);
-                bindRowEvents(tr);
+        function recalcTotal() {
+            let toplam = 0;
+            $("#detayBody tr").each(function() {
+                const ara = parseFloat($(this).find("td").eq(3).text()) || 0;
+                toplam += ara;
             });
+            $("#genelToplam").text(toplam.toFixed(2));
+        }
 
-            document.querySelectorAll('#detayTable tbody tr').forEach(bindRowEvents);
-        })();
+        // SATIR EKLE (Artık DetayController'a istek atıyoruz)
+        $("#btnAddLine").on("click", function(e){
+            e.preventDefault();
+            const irsaliyeId = @Model.PostModel.Id;
+            const malzemeId = parseInt($("#ddlMalzeme").val());
+            const malzemeText = $("#ddlMalzeme option:selected").text();
+            const miktar = parseFloat($("#txtMiktar").val());
+            const birimFiyat = parseFloat($("#txtBirimFiyat").val());
+            const seriNo = $("#txtSeriNo").val() || null;
+
+            if(!malzemeId || !miktar || isNaN(miktar) || miktar <= 0 || isNaN(birimFiyat) || birimFiyat < 0){
+                alert("Malzeme/Miktar/Birim Fiyat kontrol edin.");
+                return;
+            }
+
+            const payload = {
+                irsaliyeId: irsaliyeId,
+                malzemeId: malzemeId,
+                miktar: miktar,
+                birimFiyat: birimFiyat,
+                seriNo: seriNo
+            };
+
+            $.ajax({
+                url: '@Url.Action("Add","Detay")', // ← DetayController
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function(list){
+                    const body = $("#detayBody").empty();
+                    list.forEach(function(d){
+                        body.append(`
+                          <tr data-id="${d.id}" data-malzemeid="${d.malzemeId}">
+                            <td>${d.malzemeAd ?? d.malzemeId}</td>
+                            <td class="text-end">${d.miktar}</td>
+                            <td class="text-end">${d.birimFiyat}</td>
+                            <td class="text-end">${d.araToplam}</td>
+                            <td class="text-end"><button class="btn btn-sm btn-outline-danger btnRemove">Sil</button></td>
+                          </tr>`);
+                    });
+                    recalcTotal();
+                    $("#txtMiktar").val(""); $("#txtBirimFiyat").val(""); $("#txtSeriNo").val("");
+                },
+                error: function(xhr){
+                    alert(xhr.responseText || "Satır eklenemedi.");
+                }
+            });
+        });
+
+        // SATIR SİL
+        $(document).on("click",".btnRemove", function(){
+            const tr = $(this).closest("tr");
+            const detayId = tr.data("id");
+            const irsaliyeId = @Model.PostModel.Id;
+
+            $.ajax({
+                url: '@Url.Action("Remove","Detay")', // ← DetayController
+                type: 'POST',
+                data: { irsaliyeId: irsaliyeId, detayId: detayId },
+                success: function(list){
+                    const body = $("#detayBody").empty();
+                    list.forEach(function(d){
+                        body.append(`
+                          <tr data-id="${d.id}" data-malzemeid="${d.malzemeId}">
+                            <td>${d.malzemeAd ?? d.malzemeId}</td>
+                            <td class="text-end">${d.miktar}</td>
+                            <td class="text-end">${d.birimFiyat}</td>
+                            <td class="text-end">${d.araToplam}</td>
+                            <td class="text-end"><button class="btn btn-sm btn-outline-danger btnRemove">Sil</button></td>
+                          </tr>`);
+                    });
+                    recalcTotal();
+                },
+                error: function(xhr){
+                    alert(xhr.responseText || "Satır silinemedi.");
+                }
+            });
+        });
+
+        recalcTotal();
     </script>
 }
 

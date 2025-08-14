@@ -100,7 +100,8 @@ namespace StokTakip.Service.AutoMapper
                 .ForMember(d => d.irsaliyeTarihi, m => m.MapFrom(s => s.IrsaliyeTarihi))
                 .ForMember(d => d.irsaliyeTipi, m => m.MapFrom(s => s.IrsaliyeTipi))
                 .ForMember(d => d.aciklama, m => m.MapFrom(s => s.Aciklama))
-                .ForMember(d => d.depoId, m => m.MapFrom(s => s.DepoId));
+                .ForMember(d => d.depoId, m => m.MapFrom(s => s.DepoId))
+                .ForMember(d => d.toplamTutar, m => m.Ignore());
 
 
             CreateMap<DepoTransferDetay, DepoTransferDetayDto>()
@@ -123,6 +124,10 @@ namespace StokTakip.Service.AutoMapper
                 .ForMember(d => d.araToplam, m => m.MapFrom(s => s.miktar * s.birimFiyat));
 
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>();
+
+
+            CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>()
+    .ForMember(d => d.malzemeAd, m => m.MapFrom(s => s.malzeme.malzemeAdi)); // gerçek alan adı
 
 
 

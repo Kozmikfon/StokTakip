@@ -25,7 +25,8 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
         // Ekranda gösterim kolaylığı için isim alanları (opsiyonel)
         public string? cariAd { get; set; }
         public string? depoAd { get; set; }
-
+        public DateTime CreatedTime { get; set; }
+        public string ModifiedTime { get; set; }
         public List<IrsaliyeDetayDto> Detaylar { get; set; } = new();
     }
 }

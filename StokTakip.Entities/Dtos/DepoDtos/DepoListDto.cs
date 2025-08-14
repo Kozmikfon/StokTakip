@@ -12,6 +12,7 @@ namespace StokTakip.Entities.Dtos.DepoDtos
         public string DepoAd { get; set; } = null!;
         public string RafBilgisi { get; set; } = null!;
         public string? Aciklama { get; set; }
+        
         public string KonumBilgisi { get; set; } = null!;
 
     }
