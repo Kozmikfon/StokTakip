@@ -1,0 +1,29 @@
+﻿@model StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayDto
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Transfer Detay Sil</h3>
+
+<hr />
+<div class="alert alert-danger">
+    <strong>Uyarı!</strong> Bu transfer detayını silmek istediğinizden emin misiniz?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Malzeme</dt>
+    <dd class="col-sm-9">@Model.MalzemeAdi</dd>
+
+    <dt class="col-sm-3">Miktar</dt>
+    <dd class="col-sm-9">@Model.Miktar</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <input type="hidden" name="transferId" value="@Model.TransferId" />
+
+    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+    <a asp-action="Index" asp-route-transferId="@Model.TransferId" class="btn btn-secondary">Vazgeç</a>
+</form>
+

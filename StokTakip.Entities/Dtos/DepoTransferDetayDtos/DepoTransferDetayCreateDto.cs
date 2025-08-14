@@ -17,6 +17,12 @@ namespace StokTakip.Entities.Dtos.DepoTransferDetayDtos
         [Required(ErrorMessage = "Malzeme seçilmelidir.")]
         [DisplayName("Malzeme")]
         public int MalzemeId { get; set; }
+        [DisplayName("Açıklama")]
+        public string? Aciklama { get; set; }
+
+
+        [DisplayName("Malzeme Adı")]
+        public string? SeriNo { get; set; }
 
         [Required(ErrorMessage = "Miktar boş geçilemez.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Miktar sıfırdan büyük olmalıdır.")]

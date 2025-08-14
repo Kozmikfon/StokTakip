@@ -106,6 +106,24 @@ namespace StokTakip.Service.AutoMapper
                 .ForMember(d => d.irsaliyeTipi, o => o.MapFrom(s => s.IrsaliyeTipi));
 
 
+            CreateMap<DepoTransferDetay, DepoTransferDetayDto>()
+               .ForMember(dest => dest.MalzemeAdi, opt => opt.MapFrom(src => src.malzeme.malzemeAdi))
+               .ForMember(dest => dest.SeriNo, opt => opt.MapFrom(src => src.depoTransfer.seriNo))
+              .ForMember(dest => dest.Aciklama, opt => opt.MapFrom(src => src.depoTransfer.aciklama))
+                .ForMember(dest => dest.KaynakDepoAdi, opt => opt.MapFrom(src => src.depoTransfer.kaynakDepo.depoAd))
+            .ForMember(dest => dest.HedefDepoAdi, opt => opt.MapFrom(src => src.depoTransfer.hedefDepo.depoAd));
+
+            CreateMap<DepoTransfer, DepoTransferDto>()
+             .ForMember(dest => dest.KaynakDepoAdi, opt => opt.MapFrom(src => src.kaynakDepo.depoAd))
+             .ForMember(dest => dest.HedefDepoAdi, opt => opt.MapFrom(src => src.hedefDepo.depoAd))
+             .ForMember(dest => dest.SeriNo, opt => opt.MapFrom(src => src.seriNo)) // BU SATIR
+            .ForMember(dest => dest.TransferTarihi, opt => opt.MapFrom(src => src.transferTarihi));
+
+
+
+
+
+
 
 
 

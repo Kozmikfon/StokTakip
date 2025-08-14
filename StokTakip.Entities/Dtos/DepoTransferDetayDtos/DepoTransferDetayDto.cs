@@ -14,8 +14,11 @@ namespace StokTakip.Entities.Dtos.DepoTransferDetayDtos
         public int MalzemeId { get; set; }
         public string? MalzemeAdi { get; set; }
 
+        public string? KaynakDepoAdi { get; set; }
+        public string? HedefDepoAdi { get; set; }
         public decimal Miktar { get; set; }
-        public string Aciklama { get; set; }
+        public string? Aciklama { get; set; }
+        public string? SeriNo { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime ModifiedTime { get; set; }
         public bool IsActive { get; set; }

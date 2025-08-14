@@ -12,10 +12,10 @@ namespace StokTakip.MVC.Controllers
     public class DepoTransferController : Controller
     {
         private readonly IDepoTransferService _depoTransferService;
-        private readonly IMalzemeService _malzemeService; 
+        private readonly IMalzemeService _malzemeService;
         private readonly IDepoService _depoService;
 
-        public DepoTransferController(IDepoTransferService depoTransferService, IMalzemeService malzemeService,IDepoService depoService)
+        public DepoTransferController(IDepoTransferService depoTransferService, IMalzemeService malzemeService, IDepoService depoService)
         {
             _depoTransferService = depoTransferService;
             _malzemeService = malzemeService;
@@ -97,6 +97,33 @@ namespace StokTakip.MVC.Controllers
                 return NotFound();
 
             return View(result.Data); // View'da detaylara link verilir
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _depoTransferService.GetAsync(id);
+            if (result == null || result.Data == null)
+            {
+                return NotFound();
+            }
+            return View(result.Data);
+        }
+
+
+        [HttpPost,ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var result = await _depoTransferService.DeleteAsync(id);
+            if (result.ResultStatus == ResultStatus.Success)
+            {
+                TempData["SuccessMessage"] = result.Info;
+                return RedirectToAction("Index");
+            }
+            TempData["ErrorMessage"] = result.Info;
+            return RedirectToAction("Index");
+
         }
     }
 }

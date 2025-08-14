@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StokTakip.Data.Concrete.EFcore.Contexts;
 
@@ -11,9 +12,11 @@ using StokTakip.Data.Concrete.EFcore.Contexts;
 namespace StokTakip.Data.Migrations
 {
     [DbContext(typeof(StokContext))]
-    partial class StokContextModelSnapshot : ModelSnapshot
+    [Migration("20250814104543_Entity")]
+    partial class Entity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

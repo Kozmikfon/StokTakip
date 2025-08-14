@@ -3,6 +3,7 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <h2>@ViewData["Title"]</h2>
 
 <a asp-action="Create" class="btn btn-primary mb-3">+ Yeni Transfer Ekle</a>
@@ -28,21 +29,29 @@
                     <td>@item.TransferNo</td>
                     <td>@item.KaynakDepoAdi</td>
                     <td>@item.HedefDepoAdi</td>
-                    <td>@item.TransferTarihi.ToString("yyyy-MM-dd")</td>
+                    <td>@item.TransferTarihi.ToString("dd-MM-yyyy")</td>
                     <td>@item.SeriNo</td>
                     <td>@item.Aciklama</td>
                     <td>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detaylar</a>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Güncelle</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Sil</a>
+
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bu transfer kaydını silmek istediğinize emin misiniz?');">
+                                Sil
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }
         }
         else
         {
-            <tr><td colspan="7" class="text-center">Hiç transfer kaydı bulunamadı.</td></tr>
+            <tr>
+                <td colspan="7" class="text-center text-muted">Hiç transfer kaydı bulunamadı.</td>
+            </tr>
         }
     </tbody>
-</table>>
-
+</table>

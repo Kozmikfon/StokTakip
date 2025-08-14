@@ -8,7 +8,7 @@ namespace StokTakip.MVC.Controllers
 {
     public class CariController : Controller
     {
-        private readonly ICariService _cariService;
+         ICariService _cariService;
         public CariController(ICariService cariService)
         {
             _cariService = cariService;
