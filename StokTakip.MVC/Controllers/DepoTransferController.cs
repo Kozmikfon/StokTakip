@@ -1,129 +1,193 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StokTakip.Entities.Dtos.DepoTransferDetayDtos;
 using StokTakip.Entities.Dtos.DepoTransferDtos;
 using StokTakip.Service.Abstract;
-using StokTakip.Service.Concrete;
-using StokTakip.Shared.Utilities.ComplexTypes;
 using System.Threading.Tasks;
 
-namespace StokTakip.MVC.Controllers
+namespace StokTakip.Web.Controllers
 {
+    
     public class DepoTransferController : Controller
     {
-        private readonly IDepoTransferService _depoTransferService;
-        private readonly IMalzemeService _malzemeService;
-        private readonly IDepoService _depoService;
+        private readonly IDepoTransferService _transferService;
+        private readonly IDepoTransferDetayService _detayService;
 
-        public DepoTransferController(IDepoTransferService depoTransferService, IMalzemeService malzemeService, IDepoService depoService)
+        public DepoTransferController(IDepoTransferService transferService,
+                                      IDepoTransferDetayService detayService)
         {
-            _depoTransferService = depoTransferService;
-            _malzemeService = malzemeService;
-            _depoService = depoService;
+            _transferService = transferService;
+            _detayService = detayService;
         }
 
+        
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var result = await _depoTransferService.GetAllByNonDeleteAsync();
-            return View(result.Data); // List<DepoTransferListDto>
+            var res = await _transferService.GetAllAsync();
+            return View(res.Data); // IEnumerable<DepoTransferListDto>
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Details(int id)
         {
-            var depolar = await _depoService.GetAllAsync();
-            var selectList = depolar.Data.Select(d => new SelectListItem
+            var res = await _transferService.GetAsync(id);
+            if (res.ResultStatus != Shared.Utilities.ComplexTypes.ResultStatus.Success || res.Data == null)
             {
-                Text = d.DepoAd,
-                Value = d.Id.ToString()
-            }).ToList();
+                TempData["Error"] = res.Info ?? "Kayıt bulunamadı.";
+                return RedirectToAction(nameof(Index));
+            }
 
-            ViewBag.KaynakDepolar = selectList;
-            ViewBag.HedefDepolar = selectList;
+            // Satırlar
+            var lines = await _transferService.GetLinesAsync(id);
+            res.Data.Detaylar = lines.Data ?? res.Data.Detaylar;
 
-            return View(new DepoTransferCreateDto());
+            return View(res.Data); // DepoTransferDto (Detaylar dolu)
         }
 
+        // ---------- CREATE (Taslak) ----------
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new DepoTransferCreateDto { TransferTarihi = System.DateTime.Now });
+        }
 
-
-        [HttpPost]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DepoTransferCreateDto dto)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) return View(dto);
+
+            var res = await _transferService.CreateHeaderAsync(dto);
+            if (res.ResultStatus == Shared.Utilities.ComplexTypes.ResultStatus.Success)
             {
-                // Hatalı model durumunda dropdown'lar tekrar yüklenmeli
-                var depolar = await _depoService.GetAllAsync();
-                var selectList = depolar.Data.Select(d => new SelectListItem
-                {
-                    Text = d.DepoAd,
-                    Value = d.Id.ToString()
-                }).ToList();
-
-                ViewBag.KaynakDepolar = selectList;
-                ViewBag.HedefDepolar = selectList;
-
-                return View(dto);
+                TempData["Success"] = "Taslak oluşturuldu.";
+                return RedirectToAction(nameof(Edit), new { id = res.Data.Id });
             }
 
-            var result = await _depoTransferService.CreateAsync(dto);
-
-            if (result.ResultStatus == ResultStatus.Success)
-            {
-                TempData["SuccessMessage"] = result.Info;
-                return RedirectToAction("Create", "DepoTransferDetay", new { transferId = result.Data.Id });
-            }
-
-            // Başarısız durumda da dropdown'lar tekrar yüklenmeli
-            var depolarFail = await _depoService.GetAllAsync();
-            var selectListFail = depolarFail.Data.Select(d => new SelectListItem
-            {
-                Text = d.DepoAd,
-                Value = d.Id.ToString()
-            }).ToList();
-
-            ViewBag.KaynakDepolar = selectListFail;
-            ViewBag.HedefDepolar = selectListFail;
-
-            ModelState.AddModelError("", result.Info);
+            TempData["Error"] = res.Info ?? "Oluşturma başarısız.";
             return View(dto);
         }
 
-
-
-        public async Task<IActionResult> Details(int id)
+        // ---------- EDIT (yalnız Taslak) ----------
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            var result = await _depoTransferService.GetAsync(id);
-            if (result.Data == null)
-                return NotFound();
+            var res = await _transferService.GetAsync(id);
+            if (res.ResultStatus != Shared.Utilities.ComplexTypes.ResultStatus.Success || res.Data == null)
+            {
+                TempData["Error"] = res.Info ?? "Kayıt bulunamadı.";
+                return RedirectToAction(nameof(Index));
+            }
 
-            return View(result.Data); // View'da detaylara link verilir
+            // Durum Onaylı ise salt okunur sayfaya yönlendirmek istersen:
+            if (res.Data.Durum == Entities.Enums.TransferDurumu.Onayli)
+                return RedirectToAction(nameof(Details), new { id });
+
+            // Satırları yükle
+            var lines = await _transferService.GetLinesAsync(id);
+            res.Data.Detaylar = lines.Data ?? res.Data.Detaylar;
+
+            // Edit view’ında header alanlarını DepoTransferUpdateDto ile bind edeceğiz
+            var updateDto = new DepoTransferUpdateDto
+            {
+                Id = res.Data.Id,
+                TransferNo = res.Data.TransferNo,
+                KaynakDepoId = res.Data.KaynakDepoId,
+                HedefDepoId = res.Data.HedefDepoId,
+                TransferTarihi = res.Data.TransferTarihi,
+                Aciklama = res.Data.Aciklama,
+                SeriNo = res.Data.SeriNo
+            };
+
+            ViewBag.Transfer = res.Data; // başlık + detaylar görünsün
+            return View(updateDto);
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(DepoTransferUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                // ViewBag.Transfer için başlığı tekrar getir
+                var re = await _transferService.GetAsync(dto.Id);
+                ViewBag.Transfer = re.Data;
+                return View(dto);
+            }
 
-        [HttpGet]
+            var res = await _transferService.UpsertAsync(dto);
+            if (res.ResultStatus == Shared.Utilities.ComplexTypes.ResultStatus.Success)
+            {
+                TempData["Success"] = "Taslak güncellendi.";
+                return RedirectToAction(nameof(Edit), new { id = dto.Id });
+            }
+
+            TempData["Error"] = res.Info ?? "Güncelleme başarısız.";
+            // Başlık/detay gösterimi için yeniden yükle
+            var re2 = await _transferService.GetAsync(dto.Id);
+            ViewBag.Transfer = re2.Data;
+            return View(dto);
+        }
+
+        // ---------- DELETE (soft, yalnız Taslak) ----------
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _depoTransferService.GetAsync(id);
-            if (result == null || result.Data == null)
+            var res = await _transferService.DeleteAsync(id);
+            if (res.ResultStatus == Shared.Utilities.ComplexTypes.ResultStatus.Success)
             {
-                return NotFound();
+                TempData["Success"] = "Transfer silindi.";
             }
-            return View(result.Data);
+            else TempData["Error"] = res.Info ?? "Silme başarısız.";
+
+            return RedirectToAction(nameof(Index));
         }
 
-
-        [HttpPost,ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        // ---------- LINES (Taslak) ----------
+        [HttpPost]
+        public async Task<IActionResult> AddLine(DepoTransferDetayCreateDto dto)
         {
-            var result = await _depoTransferService.DeleteAsync(id);
-            if (result.ResultStatus == ResultStatus.Success)
-            {
-                TempData["SuccessMessage"] = result.Info;
-                return RedirectToAction("Index");
-            }
-            TempData["ErrorMessage"] = result.Info;
-            return RedirectToAction("Index");
+            if (!ModelState.IsValid)
+                return BadRequest("Geçersiz satır verisi.");
 
+            var res = await _transferService.AddLineAsync(dto.TransferId, dto);
+            if (res.ResultStatus == Shared.Utilities.ComplexTypes.ResultStatus.Success)
+                return Ok("Satır eklendi.");
+
+            return BadRequest(res.Info ?? "Satır eklenemedi.");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveLine(int transferId, int detayId)
+        {
+            var res = await _transferService.RemoveLineAsync(transferId, detayId);
+            if (res.ResultStatus == Shared.Utilities.ComplexTypes.ResultStatus.Success)
+                return Ok("Satır silindi.");
+
+            return BadRequest(res.Info ?? "Satır silinemedi.");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLines(int id)
+        {
+            var res = await _transferService.GetLinesAsync(id);
+            return PartialView("_Lines", res.Data); // _Lines.cshtml: IEnumerable<DepoTransferDetayDto>
+        }
+
+        // ---------- ONAY ----------
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Onayla(int id)
+        {
+            var user = User?.Identity?.Name ?? "system";
+            var res = await _transferService.TalepOlusturAsync(id, user);
+
+            if (res.ResultStatus == Shared.Utilities.ComplexTypes.ResultStatus.Success)
+            {
+                TempData["Success"] = "Onay başarılı; stoklara işlendi.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            TempData["Error"] = res.Info ?? "Onay sırasında hata oluştu.";
+            return RedirectToAction(nameof(Edit), new { id });
         }
     }
 }

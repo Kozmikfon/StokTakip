@@ -2,6 +2,7 @@
 using StokTakip.Entities.Dtos.DepoTransferDetayDtos;
 using StokTakip.Service.Abstract;
 using StokTakip.Shared.Utilities.ComplexTypes;
+using System.Threading.Tasks;
 
 namespace StokTakip.MVC.Controllers
 {
@@ -19,7 +20,7 @@ namespace StokTakip.MVC.Controllers
         // 🧾 Transfer detaylarını listele
         public async Task<IActionResult> Index(int transferId)
         {
-            var result = await _detayService.GetAllByTransferIdAsync(transferId);
+            var result = await _detayService.GetByTransferIdAsync(transferId);  // <-- isim düzeltildi
             ViewBag.TransferId = transferId;
 
             if (result.ResultStatus == ResultStatus.Success)
@@ -55,7 +56,7 @@ namespace StokTakip.MVC.Controllers
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _detayService.Create(dto);
+            var result = await _detayService.CreateAsync(dto);   // <-- isim düzeltildi
 
             if (result.ResultStatus == ResultStatus.Success)
             {
@@ -67,12 +68,12 @@ namespace StokTakip.MVC.Controllers
             return View(dto);
         }
 
-        // Detay silme işlemi
+        // 🗑️ Detay silme işlemi
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, int transferId)
         {
-            var result = await _detayService.Delete(id);
+            var result = await _detayService.DeleteAsync(id);    // <-- isim düzeltildi
 
             if (result.ResultStatus == ResultStatus.Success)
                 TempData["SuccessMessage"] = result.Info;
@@ -82,15 +83,18 @@ namespace StokTakip.MVC.Controllers
             return RedirectToAction("Index", new { transferId });
         }
 
-        
-        public async Task<IActionResult> Details(int id)
+        // ℹ️ Tekil detay GET arayüzde yok -> bu action'ı şimdilik kapatalım
+        // Eğer gerekli ise, IDepoTransferDetayService'e GetAsync(int detayId) ekleyelim.
+        /*
+        public async Task<IActionResult> Details(int id, int transferId)
         {
-            var result = await _detayService.Get(id);
-            if (result.ResultStatus == ResultStatus.Success)
-                return View(result.Data);
+            var all = await _detayService.GetByTransferIdAsync(transferId);
+            var item = all.Data?.FirstOrDefault(x => x.Id == id);
+            if (item != null) return View(item);
 
-            TempData["ErrorMessage"] = result.Info;
-            return RedirectToAction("Index", new { transferId = 1 });
+            TempData["ErrorMessage"] = "Detay bulunamadı.";
+            return RedirectToAction("Index", new { transferId });
         }
+        */
     }
 }

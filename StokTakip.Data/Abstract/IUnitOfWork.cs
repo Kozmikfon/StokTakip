@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +27,10 @@ namespace StokTakip.Data.Abstract
 
         Task<int> SaveAsync();
 
+        //stok durumu için
+        Task<IDbContextTransaction> BeginTransactionAsync();
 
-       
+
 
 
 

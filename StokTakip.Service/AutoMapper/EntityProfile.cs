@@ -115,7 +115,8 @@ namespace StokTakip.Service.AutoMapper
              .ForMember(dest => dest.KaynakDepoAdi, opt => opt.MapFrom(src => src.kaynakDepo.depoAd))
              .ForMember(dest => dest.HedefDepoAdi, opt => opt.MapFrom(src => src.hedefDepo.depoAd))
              .ForMember(dest => dest.SeriNo, opt => opt.MapFrom(src => src.seriNo)) // BU SATIR
-            .ForMember(dest => dest.TransferTarihi, opt => opt.MapFrom(src => src.transferTarihi));
+            .ForMember(dest => dest.TransferTarihi, opt => opt.MapFrom(src => src.transferTarihi))
+             .ForMember(dest => dest.Durum, opt => opt.MapFrom(src => src.durum));
 
             CreateMap<IrsaliyeDetayCreateDto, IrsaliyeDetay>()
     .ForMember(d => d.araToplam, m => m.MapFrom(s => s.miktar * s.birimFiyat));
@@ -123,11 +124,16 @@ namespace StokTakip.Service.AutoMapper
             CreateMap<IrsaliyeDetayUpdateDto, IrsaliyeDetay>()
                 .ForMember(d => d.araToplam, m => m.MapFrom(s => s.miktar * s.birimFiyat));
 
-            CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>();
+       
 
 
             CreateMap<IrsaliyeDetay, IrsaliyeDetayDto>()
-    .ForMember(d => d.malzemeAd, m => m.MapFrom(s => s.malzeme.malzemeAdi)); // gerçek alan adı
+             .ForMember(d => d.malzemeAd, m => m.MapFrom(s => s.malzeme.malzemeAdi)) 
+            .ForMember(d => d.Id, m => m.MapFrom(s => s.Id)); 
+
+
+
+
 
 
 

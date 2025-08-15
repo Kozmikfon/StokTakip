@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StokTakip.Data.Concrete.EFcore.Mapping;
 using StokTakip.Entities.Concrete;
+using StokTakip.Entities.ViewModels.StokDurumu;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,11 @@ namespace StokTakip.Data.Concrete.EFcore.Contexts
             modelBuilder.ApplyConfiguration(new StokMap());
             modelBuilder.ApplyConfiguration(new LogTakipMap());
             modelBuilder.ApplyConfiguration(new KullaniciMap());
+            modelBuilder.Entity<StokDurumView>(eb =>
+            {
+                eb.HasNoKey();
+                eb.ToView("Vw_StokDurumu"); // SQL’de oluşturduğun view adı
+            });
 
         }
     }

@@ -1,4 +1,5 @@
-﻿using StokTakip.Shared.Entities.Abstract;
+﻿using StokTakip.Entities.Enums;
+using StokTakip.Shared.Entities.Abstract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,6 +34,9 @@ namespace StokTakip.Entities.Concrete
         [Required(ErrorMessage = "Bu alan boş geçilemez")]
         [DisplayName("Transfer Tarihi:")]
         public DateTime transferTarihi { get; set; }
+
+        //durum
+        public TransferDurumu durum { get; set; }
 
         [MaxLength(500)]
         [DisplayName("Açıklama:")]

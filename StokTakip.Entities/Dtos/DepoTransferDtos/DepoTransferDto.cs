@@ -1,7 +1,10 @@
-﻿using System;
+﻿using StokTakip.Entities.Dtos.DepoTransferDetayDtos;
+using StokTakip.Entities.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,9 +31,11 @@ namespace StokTakip.Entities.Dtos.DepoTransferDtos
 
         [DisplayName("Seri Numarası")]
         public string? SeriNo { get; set; }
+        public TransferDurumu Durum { get; set; }
 
         //  ilişkili depo adlarını göstermek için
         public string? KaynakDepoAdi { get; set; }
         public string? HedefDepoAdi { get; set; }
+        public List<DepoTransferDetayDto>? Detaylar { get; set; }
     }
 }

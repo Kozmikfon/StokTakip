@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using StokTakip.Data.Abstract;
 using StokTakip.Data.Concrete.EFcore.Contexts;
 using StokTakip.Data.Concrete.EFcore.Repositories;
@@ -12,7 +13,7 @@ namespace StokTakip.Data.Concrete
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly StokContext _context;
+       private readonly StokContext _context;
         private EfDepoRepository _efdepoRepository;
         private EfCariRepository _efcariRepository;
         private EfStokRepository _efstokRepository;
@@ -29,6 +30,7 @@ namespace StokTakip.Data.Concrete
         {
             _context = context;
             
+
         }
         // _unitOfWord.Depo.Add(entity);
         // _unitOfWork.SaveAsync();
@@ -55,7 +57,12 @@ namespace StokTakip.Data.Concrete
 
         public DbContext Context => _context;
 
-      //  IDepoTransferRepository IUnitOfWork.DepoTransfer => throw new NotImplementedException();
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+
+        //  IDepoTransferRepository IUnitOfWork.DepoTransfer => throw new NotImplementedException();
 
         public async ValueTask DisposeAsync()
         {

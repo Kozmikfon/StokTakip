@@ -7,51 +7,45 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="TransferNo" class="control-label"></label>
-        <input asp-for="TransferNo" class="form-control" />
-        <span asp-validation-for="TransferNo" class="text-danger"></span>
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label asp-for="TransferNo" class="form-label"></label>
+            <input asp-for="TransferNo" class="form-control" />
+            <span asp-validation-for="TransferNo" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="KaynakDepoId" class="form-label"></label>
+            <input asp-for="KaynakDepoId" class="form-control" />
+            <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="HedefDepoId" class="form-label"></label>
+            <input asp-for="HedefDepoId" class="form-control" />
+            <span asp-validation-for="HedefDepoId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="TransferTarihi" class="form-label"></label>
+            <input asp-for="TransferTarihi" type="date" class="form-control" />
+            <span asp-validation-for="TransferTarihi" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="SeriNo" class="form-label"></label>
+            <input asp-for="SeriNo" class="form-control" />
+            <span asp-validation-for="SeriNo" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Aciklama" class="form-label"></label>
+            <input asp-for="Aciklama" class="form-control" />
+            <span asp-validation-for="Aciklama" class="text-danger"></span>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label asp-for="KaynakDepoId"></label>
-        <select asp-for="KaynakDepoId" class="form-control" asp-items="ViewBag.KaynakDepolar"></select>
-        <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="HedefDepoId"></label>
-        <select asp-for="HedefDepoId" class="form-control" asp-items="ViewBag.HedefDepolar"></select>
-        <span asp-validation-for="HedefDepoId" class="text-danger"></span>
-    </div>
-
-
-    <div class="form-group">
-        <label asp-for="TransferTarihi" class="control-label"></label>
-        <input asp-for="TransferTarihi" type="date" class="form-control" />
-        <span asp-validation-for="TransferTarihi" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-3">
-        <label asp-for="Aciklama" class="form-label">Açıklama</label>
-        <textarea asp-for="Aciklama" class="form-control"></textarea>
-        <span asp-validation-for="Aciklama" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="SeriNo" class="form-label">Seri No</label>
-        <input asp-for="SeriNo" class="form-control" />
-        <span asp-validation-for="SeriNo" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mt-3">
-        <button type="submit" class="btn btn-primary">Transfer Oluştur</button>
-        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Oluştur</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
     </div>
 </form>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
-

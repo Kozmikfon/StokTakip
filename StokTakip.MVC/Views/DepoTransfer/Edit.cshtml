@@ -1,0 +1,123 @@
+﻿@model StokTakip.Entities.Dtos.DepoTransferDtos.DepoTransferUpdateDto
+@using StokTakip.Entities.Dtos.DepoTransferDtos
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var transfer = ViewBag.Transfer as DepoTransferDto;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label asp-for="TransferNo" class="form-label"></label>
+                    <input asp-for="TransferNo" class="form-control" />
+                    <span asp-validation-for="TransferNo" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="KaynakDepoId" class="form-label"></label>
+                    <input asp-for="KaynakDepoId" class="form-control" />
+                    <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="HedefDepoId" class="form-label"></label>
+                    <input asp-for="HedefDepoId" class="form-control" />
+                    <span asp-validation-for="HedefDepoId" class="text-danger"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="TransferTarihi" class="form-label"></label>
+                    <input asp-for="TransferTarihi" type="date" class="form-control" />
+                    <span asp-validation-for="TransferTarihi" class="text-danger"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="SeriNo" class="form-label"></label>
+                    <input asp-for="SeriNo" class="form-control" />
+                    <span asp-validation-for="SeriNo" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Aciklama" class="form-label"></label>
+                    <input asp-for="Aciklama" class="form-control" />
+                    <span asp-validation-for="Aciklama" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Kaydet</button>
+
+                @* yalnız Taslak ise Sil & Onay *@
+                @if (transfer != null && transfer.Durum == StokTakip.Entities.Enums.TransferDurumu.Taslak)
+                {
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-outline-danger" type="submit">Sil</button>
+                    </form>
+
+                    <form asp-action="Onayla" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-success" type="submit">Onayla</button>
+                    </form>
+                }
+                <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (transfer != null)
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div><strong>Satırlar</strong></div>
+            @if (transfer.Durum == StokTakip.Entities.Enums.TransferDurumu.Taslak)
+            {
+                <button id="btnShowAdd" class="btn btn-sm btn-outline-primary">Satır Ekle</button>
+            }
+        </div>
+        <div class="card-body">
+            <div id="linesContainer">
+                @await Html.PartialAsync("_Lines", transfer.Detaylar)
+            </div>
+
+            <div id="addLineContainer" class="mt-3" style="display:none;">
+                @await Html.PartialAsync("_AddLine", new StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayCreateDto { TransferId = transfer.Id })
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('btnShowAdd')?.addEventListener('click', function(){
+            const el = document.getElementById('addLineContainer');
+            el.style.display = (el.style.display === 'none' ? 'block' : 'none');
+        });
+
+        // AJAX: Satır eklendikten sonra listeyi yenile
+        async function refreshLines(transferId){
+            const res = await fetch('@Url.Action("GetLines", "DepoTransfer")?id=' + transferId, { method: 'GET' });
+            const html = await res.text();
+            document.getElementById('linesContainer').innerHTML = html;
+        }
+
+        // Global’a koy
+        window.refreshLines = refreshLines;
+    </script>
+}
+

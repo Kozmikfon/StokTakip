@@ -10,5 +10,7 @@ namespace StokTakip.Data.Abstract
 {
     public interface IStokRepository : IEntityRepository<Stok>
     {
+        Task<decimal> GetKalanMiktarAsync(int depoId, int malzemeId);
+        Task<Dictionary<int, decimal>> GetKalanMiktarlarAsync(int depoId, IEnumerable<int> malzemeIdList);
     }
 }
