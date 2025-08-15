@@ -27,15 +27,25 @@ namespace StokTakip.Service.Concrete
             _mapper = mapper;
         }
 
-        // ---- Helpers ----
+        // ---------------- Helpers ----------------
         private static int GetSign(IrsaliyeTipi tip) => tip switch
         {
             IrsaliyeTipi.Giris => +1,
             IrsaliyeTipi.Cikis => -1,
-            IrsaliyeTipi.Transfer => throw new InvalidOperationException("Transfer bu servisle işlenmiyor."),
+            IrsaliyeTipi.Transfer => throw new InvalidOperationException("Transfer bu servis akışında işlenmiyor."),
             _ => throw new ArgumentOutOfRangeException(nameof(tip))
         };
 
+        private static void SoftDeleteEntity(EntityBase e)
+        {
+            e.IsDelete = true;
+            e.IsActive = false;
+            e.ModifiedTime = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Basit stok ayarlama. Kayıt yoksa ve delta pozitifse kayıt oluşturur; negatifse yetersiz stok döner.
+        /// </summary>
         private async Task<Result> AdjustStockAsync(int depoId, int malzemeId, decimal delta)
         {
             var stok = await _unitOfWork.Stok.GetAsync(s => s.DepoId == depoId && s.MalzemeId == malzemeId && !s.IsDelete);
@@ -72,14 +82,19 @@ namespace StokTakip.Service.Concrete
             return new Result(ResultStatus.Success);
         }
 
-        private static void SoftDeleteEntity(EntityBase e)
+        private async Task<string> GenerateIrsaliyeNoAsync()
         {
-            e.IsDelete = true;
-            e.IsActive = false;
-            e.ModifiedTime = DateTime.Now;
+            for (int i = 0; i < 3; i++)
+            {
+                var no = $"IRS-{DateTime.Now:yyyyMMdd-HHmmssfff}";
+                var exists = await _unitOfWork.Irsaliye.GetAsync(x => x.irsaliyeNo == no) != null;
+                if (!exists) return no;
+                await Task.Delay(5);
+            }
+            return $"IRS-{DateTime.Now:yyyyMMdd-HHmmssfff}-{Guid.NewGuid().ToString("N")[..4]}";
         }
 
-        // ---- READ ----
+        // ---------------- READ ----------------
         public async Task<IDataResult<IrsaliyeDto>> Get(int id)
         {
             var irs = await _unitOfWork.Irsaliye.GetAsync(x => x.Id == id && !x.IsDelete);
@@ -137,19 +152,33 @@ namespace StokTakip.Service.Concrete
             return new DataResult<List<IrsaliyeListDto>>(ResultStatus.Success, dtoList);
         }
 
-        // ---- CREATE HEADER (Taslak) ----
+        // ---------------- CREATE HEADER (Taslak) ----------------
         public async Task<IDataResult<IrsaliyeDto>> CreateHeaderAsync(IrsaliyeCreateDto headerDto)
         {
             if (headerDto == null)
                 return new DataResult<IrsaliyeDto>(ResultStatus.Error, "Geçersiz veri.", null);
+
+            // IrsaliyeNo boşsa üret
+            if (string.IsNullOrWhiteSpace(headerDto.IrsaliyeNo))
+                headerDto.IrsaliyeNo = await GenerateIrsaliyeNoAsync();
+
+            // Temel doğrulamalar (varsa)
+            var cariOk = headerDto.CarId > 0 && await _unitOfWork.Cari.GetAsync(x => x.Id == headerDto.CarId && !x.IsDelete) != null;
+            if (!cariOk) return new DataResult<IrsaliyeDto>(ResultStatus.Error, "Cari bulunamadı / geçersiz.", null);
+
+            var depoOk = headerDto.DepoId > 0 && await _unitOfWork.Depo.GetAsync(x => x.Id == headerDto.DepoId && !x.IsDelete) != null;
+            if (!depoOk) return new DataResult<IrsaliyeDto>(ResultStatus.Error, "Depo bulunamadı / geçersiz.", null);
+
+            if (!Enum.IsDefined(typeof(IrsaliyeTipi), headerDto.IrsaliyeTipi) || headerDto.IrsaliyeTipi == 0)
+                headerDto.IrsaliyeTipi = IrsaliyeTipi.Giris;
 
             var irs = _mapper.Map<Irsaliye>(headerDto);
             irs.CreatedTime = DateTime.Now;
             irs.ModifiedTime = DateTime.Now;
             irs.IsActive = true;
             irs.IsDelete = false;
-            irs.durum = IrsaliyeDurumu.Taslak; // Taslak olarak başlat
-            irs.toplamTutar = 0m; // taslakta isteğe bağlı hesaplanabilir
+            irs.durum = IrsaliyeDurumu.Taslak;
+            irs.toplamTutar = 0m; // NOT NULL kolon ise güvence
 
             await _unitOfWork.Irsaliye.AddAsync(irs);
             await _unitOfWork.SaveAsync();
@@ -159,7 +188,7 @@ namespace StokTakip.Service.Concrete
             return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
         }
 
-        // ---- UPSERT (Taslak) ----
+        // ---------------- UPSERT (Taslak) ----------------
         public async Task<IDataResult<IrsaliyeDto>> UpsertAsync(IrsaliyeUpdateDto dto)
         {
             var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == dto.Id && !i.IsDelete);
@@ -169,12 +198,12 @@ namespace StokTakip.Service.Concrete
             if (irs.durum != IrsaliyeDurumu.Taslak)
                 return new DataResult<IrsaliyeDto>(ResultStatus.Error, "Onaylı irsaliye güncellenemez.", null);
 
-            // Başlık güncelle
+            // Başlık güncelle (AutoMapper'da toplamTutar'ı Ignore yap)
             _mapper.Map(dto, irs);
             irs.ModifiedTime = DateTime.Now;
             await _unitOfWork.Irsaliye.UpdateAsync(irs);
 
-            // Taslakta basit yaklaşım: eski aktif detayları soft delete et, yenilerini ekle
+            // Eski aktif detayları soft delete
             var oldDetails = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id && !d.IsDelete);
             foreach (var od in oldDetails)
             {
@@ -182,6 +211,7 @@ namespace StokTakip.Service.Concrete
                 await _unitOfWork.IrsaliyeDetay.UpdateAsync(od);
             }
 
+            // Yeni detayları ekle
             if (dto.Detaylar != null && dto.Detaylar.Any())
             {
                 foreach (var ndto in dto.Detaylar)
@@ -197,7 +227,7 @@ namespace StokTakip.Service.Concrete
                 }
             }
 
-            // Görsel amaçlı toplam (taslakta)
+            // Taslak görünümü için toplam
             var newDetails = await _unitOfWork.IrsaliyeDetay.GetAllAsync(d => d.irsaliyeId == irs.Id && !d.IsDelete);
             irs.toplamTutar = newDetails.Sum(x => x.miktar * x.birimFiyat);
             irs.ModifiedTime = DateTime.Now;
@@ -209,12 +239,11 @@ namespace StokTakip.Service.Concrete
             return new DataResult<IrsaliyeDto>(ResultStatus.Success, outDto);
         }
 
-        // ---- DELETE (Soft, sadece Taslak) ----
+        // ---------------- DELETE (Soft, sadece Taslak) ----------------
         public async Task<IResult> Delete(int id)
         {
             var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == id && !i.IsDelete);
             if (irs == null) return new Result(ResultStatus.Error, "İrsaliye bulunamadı.");
-
             if (irs.durum != IrsaliyeDurumu.Taslak)
                 return new Result(ResultStatus.Error, "Onaylı irsaliye silinemez.");
 
@@ -226,7 +255,7 @@ namespace StokTakip.Service.Concrete
                 await _unitOfWork.IrsaliyeDetay.UpdateAsync(d);
             }
 
-            // Başlığı soft delete
+            // Başlık soft delete
             SoftDeleteEntity(irs);
             await _unitOfWork.Irsaliye.UpdateAsync(irs);
 
@@ -234,7 +263,7 @@ namespace StokTakip.Service.Concrete
             return new Result(ResultStatus.Success, "Taslak irsaliye silindi (soft).");
         }
 
-        // ---- Talep/Onay (Stok burada uygulanır) ----
+        // ---------------- Talep/Onay (Stok burada uygulanır) ----------------
         public async Task<IResult> TalepOlusturAsync(int irsaliyeId)
         {
             var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId && !i.IsDelete);
@@ -250,7 +279,7 @@ namespace StokTakip.Service.Concrete
 
             var sign = GetSign(irs.irsaliyeTipi);
 
-            // 1) Çıkış ise yeterlilik kontrolü
+            // Çıkış için yeterlilik kontrolü
             if (irs.irsaliyeTipi == IrsaliyeTipi.Cikis)
             {
                 foreach (var d in details)
@@ -262,7 +291,7 @@ namespace StokTakip.Service.Concrete
                 }
             }
 
-            // 2) Stok uygula (transaction kullanıyorsan buraya al)
+            // Stok uygula (gerekirse transaction)
             foreach (var d in details)
             {
                 var delta = sign * d.miktar;
@@ -271,7 +300,7 @@ namespace StokTakip.Service.Concrete
                     return new Result(ResultStatus.Error, res.Info ?? "Stok güncellenemedi.");
             }
 
-            // 3) Onayla + toplamı hesapla + kilitle
+            // Onayla & toplamı sabitle
             irs.durum = IrsaliyeDurumu.Onayli;
             irs.toplamTutar = details.Sum(x => x.miktar * x.birimFiyat);
             irs.ModifiedTime = DateTime.Now;
@@ -281,7 +310,7 @@ namespace StokTakip.Service.Concrete
             return new Result(ResultStatus.Success, "İrsaliye onaylandı ve stok uygulandı.");
         }
 
-        // ---- Satır Bazlı (Taslak; soft delete) ----
+        // ---------------- Satır Bazlı (Taslak; soft delete) ----------------
         public async Task<IResult> AddLineAsync(int irsaliyeId, IrsaliyeDetayCreateDto lineDto)
         {
             var irs = await _unitOfWork.Irsaliye.GetAsync(i => i.Id == irsaliyeId && !i.IsDelete);

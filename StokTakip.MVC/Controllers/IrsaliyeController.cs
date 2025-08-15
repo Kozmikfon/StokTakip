@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace StokTakip.WebUI.Controllers
+namespace StokTakip.MVC.Controllers
 {
     public class IrsaliyeController : Controller
     {
@@ -38,7 +38,7 @@ namespace StokTakip.WebUI.Controllers
             _cariService = cariService;
         }
 
-        // Dropdownları güvenli doldur (Value/Text projeksiyonu)
+        // Dropdown'ları güvenle doldur (Value/Text projeksiyonu)
         private async Task PopulateDropdownsAsync(IrsaliyePageVm vm)
         {
             var cariler = (await _cariService.GetAllAsync()).Data ?? new List<CariListDto>();
@@ -69,7 +69,7 @@ namespace StokTakip.WebUI.Controllers
             return View(list.Data ?? new List<IrsaliyeListDto>());
         }
 
-        // Edit (tek sayfa) – id yoksa dinamik taslak oluştur
+        // Edit (tek sayfa) – id yoksa DB'ye yazmadan boş form göster
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -87,32 +87,15 @@ namespace StokTakip.WebUI.Controllers
             }
             else
             {
-                // Dinamik default (ilk kayıtlar)
-                var cariler = (await _cariService.GetAllAsync()).Data ?? new List<CariListDto>();
-                var depolar = (await _depoService.GetAllAsync()).Data ?? new List<DepoListDto>();
-
-                if (!cariler.Any() || !depolar.Any())
+                // Boş form (Id=0). İlk kaydet’te header DB’ye gidecek.
+                dto = new IrsaliyeDto
                 {
-                    TempData["Error"] = "Önce en az bir Cari ve Depo kaydı oluşturmalısınız.";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                var createDto = new IrsaliyeCreateDto
-                {
-                    IrsaliyeNo = $"IRS-{DateTime.Now:yyyyMMdd-HHmmssfff}",
-                    CarId = cariler.First().Id,
-                    DepoId = depolar.First().Id,
-                    IrsaliyeTipi = IrsaliyeTipi.Giris,
-                    IrsaliyeTarihi = DateTime.Now
+                    Id = 0,
+                    irsaliyeNo = $"IRS-{DateTime.Now:yyyyMMdd-HHmmssfff}",
+                    irsaliyeTarihi = DateTime.Now,
+                    irsaliyeTipi = IrsaliyeTipi.Giris,
+                    Detaylar = new List<IrsaliyeDetayDto>()
                 };
-
-                var created = await _irsaliyeService.CreateHeaderAsync(createDto);
-                if (created.ResultStatus != ResultStatus.Success || created.Data == null)
-                {
-                    TempData["Error"] = created.Info ?? "Başlık oluşturulamadı.";
-                    return RedirectToAction(nameof(Index));
-                }
-                dto = created.Data;
             }
 
             var vm = new IrsaliyePageVm
@@ -120,7 +103,7 @@ namespace StokTakip.WebUI.Controllers
                 Irsaliye = dto,
                 PostModel = new IrsaliyeUpdateDto
                 {
-                    Id = dto.Id,
+                    Id = dto.Id, // 0 olabilir
                     IrsaliyeNo = dto.irsaliyeNo,
                     CarId = dto.carId,
                     IrsaliyeTarihi = dto.irsaliyeTarihi,
@@ -145,25 +128,88 @@ namespace StokTakip.WebUI.Controllers
         // Kaydet (Taslak upsert)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save(IrsaliyePageVm model)
+        public async Task<IActionResult> Save([Bind(Prefix = "PostModel")] IrsaliyeUpdateDto post)
         {
+            // Detaylar AJAX ile geliyor → validasyondan çıkar
+            ModelState.Remove(nameof(post.Detaylar));
+
             if (!ModelState.IsValid)
             {
-                await PopulateDropdownsAsync(model);
-                TempData["Error"] = "Form hatalı. Lütfen kontrol edin.";
-                return View("Edit", model);
+                // Teşhis için (geçici): hangi alan patlıyor gör
+                var errs = ModelState.Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => $"{x.Key}: {string.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))}");
+                TempData["Error"] = "Form hatalı: " + string.Join(" | ", errs);
+
+                // VM’yi yeniden kur (dropdown’lar için)
+                var vm = await BuildVmAsync(post.Id, post);
+                return View("Edit", vm);
             }
 
-            var res = await _irsaliyeService.UpsertAsync(model.PostModel);
+            // İlk kayıt: header oluştur
+            if (post.Id == 0)
+            {
+                var createDto = new IrsaliyeCreateDto
+                {
+                    IrsaliyeNo = post.IrsaliyeNo?.Trim(),
+                    CarId = post.CarId,
+                    DepoId = post.DepoId,
+                    IrsaliyeTipi = post.IrsaliyeTipi,
+                    IrsaliyeTarihi = post.IrsaliyeTarihi,
+                    Aciklama = post.Aciklama
+                };
+                var created = await _irsaliyeService.CreateHeaderAsync(createDto);
+                if (created.ResultStatus != ResultStatus.Success || created.Data == null)
+                {
+                    TempData["Error"] = created.Info ?? "Başlık oluşturulamadı.";
+                    var vmFail = await BuildVmAsync(0, post);
+                    return View("Edit", vmFail);
+                }
+                post.Id = created.Data.Id;
+            }
+
+            var res = await _irsaliyeService.UpsertAsync(post);
             if (res.ResultStatus == ResultStatus.Success)
             {
                 TempData["Success"] = "Taslak kaydedildi.";
-                return RedirectToAction(nameof(Edit), new { id = model.PostModel.Id });
+                return RedirectToAction(nameof(Edit), new { id = post.Id });
             }
 
             TempData["Error"] = res.Info ?? "Kayıt sırasında hata oluştu.";
-            await PopulateDropdownsAsync(model);
-            return View("Edit", model);
+            var vmError = await BuildVmAsync(post.Id, post);
+            return View("Edit", vmError);
+        }
+
+        // Edit ekranı tekrar çizmek için küçük yardımcı
+        private async Task<IrsaliyePageVm> BuildVmAsync(int id, IrsaliyeUpdateDto post)
+        {
+            IrsaliyeDto dto;
+            if (id > 0)
+            {
+                var res = await _irsaliyeService.Get(id);
+                dto = res.Data ?? new IrsaliyeDto { Id = id, Detaylar = new List<IrsaliyeDetayDto>() };
+            }
+            else
+            {
+                dto = new IrsaliyeDto
+                {
+                    Id = 0,
+                    irsaliyeNo = post.IrsaliyeNo ?? $"IRS-{DateTime.Now:yyyyMMdd-HHmmssfff}",
+                    irsaliyeTarihi = post.IrsaliyeTarihi == default ? DateTime.Now : post.IrsaliyeTarihi,
+                    irsaliyeTipi = post.IrsaliyeTipi,
+                    aciklama = post.Aciklama,
+                    carId = post.CarId,
+                    depoId = post.DepoId,
+                    Detaylar = new List<IrsaliyeDetayDto>()
+                };
+            }
+
+            var vm = new IrsaliyePageVm
+            {
+                Irsaliye = dto,
+                PostModel = post
+            };
+            await PopulateDropdownsAsync(vm);
+            return vm;
         }
 
         // Satır ekle (AJAX) – Taslak
@@ -171,10 +217,9 @@ namespace StokTakip.WebUI.Controllers
         public async Task<IActionResult> AddLine([FromBody] IrsaliyeDetayCreateDto dto)
         {
             if (dto == null) return BadRequest("Geçersiz veri.");
-
-            var res = await _irsaliyeService.AddLineAsync(dto.irsaliyeId, dto);
-            if (res.ResultStatus != ResultStatus.Success)
-                return BadRequest(res.Info ?? "Satır eklenemedi.");
+            var addRes = await _irsaliyeService.AddLineAsync(dto.irsaliyeId, dto);
+            if (addRes.ResultStatus != ResultStatus.Success)
+                return BadRequest(addRes.Info ?? "Satır eklenemedi.");
 
             var list = await _detayService.GetByIrsaliyeIdAsync(dto.irsaliyeId);
             return Ok(list.Data ?? new List<IrsaliyeDetayDto>());
@@ -184,9 +229,9 @@ namespace StokTakip.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveLine(int irsaliyeId, int detayId)
         {
-            var res = await _irsaliyeService.RemoveLineAsync(irsaliyeId, detayId);
-            if (res.ResultStatus != ResultStatus.Success)
-                return BadRequest(res.Info ?? "Satır silinemedi.");
+            var delRes = await _irsaliyeService.RemoveLineAsync(irsaliyeId, detayId);
+            if (delRes.ResultStatus != ResultStatus.Success)
+                return BadRequest(delRes.Info ?? "Satır silinemedi.");
 
             var list = await _detayService.GetByIrsaliyeIdAsync(irsaliyeId);
             return Ok(list.Data ?? new List<IrsaliyeDetayDto>());

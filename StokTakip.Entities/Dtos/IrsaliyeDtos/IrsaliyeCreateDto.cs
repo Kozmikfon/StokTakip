@@ -19,7 +19,11 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
         public int CarId { get; set; }
 
         [Required, DisplayName("İrsaliye Tarihi")]
+        
+        [DataType(DataType.Date)]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd.MM.yyyy}")]
         public DateTime IrsaliyeTarihi { get; set; } = DateTime.Now;
+
 
         [Required, DisplayName("İrsaliye Tipi")]
         public IrsaliyeTipi IrsaliyeTipi { get; set; }

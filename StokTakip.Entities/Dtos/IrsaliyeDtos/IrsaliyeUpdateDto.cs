@@ -18,7 +18,10 @@ namespace StokTakip.Entities.Dtos.IrsaliyeDtos
         public int CarId { get; set; }
 
         [Required]
-        public DateTime IrsaliyeTarihi { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd.MM.yyyy}")]
+        public DateTime IrsaliyeTarihi { get; set; } = DateTime.Now;
+
 
         [Required]
         public int DepoId { get; set; }
