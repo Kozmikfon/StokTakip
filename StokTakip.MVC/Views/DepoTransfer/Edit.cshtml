@@ -1,12 +1,18 @@
 ﻿@model StokTakip.Entities.Dtos.DepoTransferDtos.DepoTransferUpdateDto
 @using StokTakip.Entities.Dtos.DepoTransferDtos
+@using StokTakip.Entities.Enums
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
-    ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
     var transfer = ViewBag.Transfer as DepoTransferDto;
+    ViewData["Title"] = transfer != null
+       ? $"Transfer #{transfer.TransferNo} — {(transfer.Durum == TransferDurumu.Taslak ? "Taslak" : "Onaylı")}"
+       : "Depo Transfer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="mb-3">@ViewData["Title"]</h2>
 
 @if (TempData["Error"] != null)
 {
@@ -18,49 +24,52 @@
 }
 
 <div class="card mb-3">
+    <div class="card-header">Başlık Bilgileri</div>
     <div class="card-body">
-        <form asp-action="Edit" method="post">
+        <form id="frmHeader" asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <div class="row g-3">
-                <div class="col-md-2">
-                    <label asp-for="TransferNo" class="form-label"></label>
-                    <input asp-for="TransferNo" class="form-control" />
-                    <span asp-validation-for="TransferNo" class="text-danger"></span>
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label asp-for="TransferNo" class="form-label"></label>
+                        <input asp-for="TransferNo" class="form-control" disabled="@(transfer?.Durum == TransferDurumu.Onayli)" />
+                        <span asp-validation-for="TransferNo" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="KaynakDepoId" class="form-label"></label>
+                        <input asp-for="KaynakDepoId" class="form-control" disabled="@(transfer?.Durum == TransferDurumu.Onayli)" />
+                        <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="HedefDepoId" class="form-label"></label>
+                        <input asp-for="HedefDepoId" class="form-control" disabled="@(transfer?.Durum == TransferDurumu.Onayli)" />
+                        <span asp-validation-for="HedefDepoId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2">
+                        <label asp-for="TransferTarihi" class="form-label"></label>
+                        <input asp-for="TransferTarihi" type="date" class="form-control" disabled="@(transfer?.Durum == TransferDurumu.Onayli)" />
+                        <span asp-validation-for="TransferTarihi" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2">
+                        <label asp-for="SeriNo" class="form-label"></label>
+                        <input asp-for="SeriNo" class="form-control" disabled="@(transfer?.Durum == TransferDurumu.Onayli)" />
+                        <span asp-validation-for="SeriNo" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label asp-for="KaynakDepoId" class="form-label"></label>
-                    <input asp-for="KaynakDepoId" class="form-control" />
-                    <span asp-validation-for="KaynakDepoId" class="text-danger"></span>
-                </div>
-                <div class="col-md-3">
-                    <label asp-for="HedefDepoId" class="form-label"></label>
-                    <input asp-for="HedefDepoId" class="form-control" />
-                    <span asp-validation-for="HedefDepoId" class="text-danger"></span>
-                </div>
-                <div class="col-md-2">
-                    <label asp-for="TransferTarihi" class="form-label"></label>
-                    <input asp-for="TransferTarihi" type="date" class="form-control" />
-                    <span asp-validation-for="TransferTarihi" class="text-danger"></span>
-                </div>
-                <div class="col-md-2">
-                    <label asp-for="SeriNo" class="form-label"></label>
-                    <input asp-for="SeriNo" class="form-control" />
-                    <span asp-validation-for="SeriNo" class="text-danger"></span>
-                </div>
+
                 <div class="col-12">
                     <label asp-for="Aciklama" class="form-label"></label>
-                    <input asp-for="Aciklama" class="form-control" />
+                    <input asp-for="SeriNo" class="form-control" disabled="@(transfer?.Durum == TransferDurumu.Onayli)" />
                     <span asp-validation-for="Aciklama" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="mt-3 d-flex gap-2">
-                <button class="btn btn-primary" type="submit">Kaydet</button>
-
-                @* yalnız Taslak ise Sil & Onay *@
-                @if (transfer != null && transfer.Durum == StokTakip.Entities.Enums.TransferDurumu.Taslak)
+                @if (transfer?.Durum == TransferDurumu.Taslak)
                 {
+                    <button class="btn btn-primary" type="submit">Başlığı Kaydet</button>
+
                     <form asp-action="Delete" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@Model.Id" />
@@ -79,45 +88,147 @@
     </div>
 </div>
 
-@if (transfer != null)
-{
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div><strong>Satırlar</strong></div>
-            @if (transfer.Durum == StokTakip.Entities.Enums.TransferDurumu.Taslak)
-            {
-                <button id="btnShowAdd" class="btn btn-sm btn-outline-primary">Satır Ekle</button>
-            }
-        </div>
-        <div class="card-body">
-            <div id="linesContainer">
-                @await Html.PartialAsync("_Lines", transfer.Detaylar)
-            </div>
-
-            <div id="addLineContainer" class="mt-3" style="display:none;">
-                @await Html.PartialAsync("_AddLine", new StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayCreateDto { TransferId = transfer.Id })
-            </div>
-        </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div><strong>Satırlar</strong></div>
+        @if (transfer?.Durum == TransferDurumu.Taslak)
+        {
+            <button id="btnToggleAdd" class="btn btn-sm btn-outline-primary">Satır Ekle</button>
+        }
     </div>
-}
+    <div class="card-body">
+        <div id="linesContainer">
+            <!-- Sunucu tarafı render (ilk yük) -->
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>Malzeme</th>
+                        <th>Miktar</th>
+                        <th>Seri No</th>
+                        <th>Açıklama</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (transfer?.Detaylar != null)
+                    {
+                        foreach (var d in transfer.Detaylar)
+                        {
+                            <tr data-detay-id="@d.Id">
+                                <td>@d.MalzemeAdi (@d.MalzemeId)</td>
+                                <td>@d.Miktar</td>
+                                <td>@d.SeriNo</td>
+                                <td>@d.Aciklama</td>
+                                <td class="text-end">
+                                    @if (transfer.Durum == TransferDurumu.Taslak)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="removeLine(@d.Id, @transfer.Id)">
+                                            Sil
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (transfer?.Durum == TransferDurumu.Taslak)
+        {
+            <div id="addLineContainer" class="mt-3" style="display:none;">
+                <form id="frmAddLine">
+                    <input type="hidden" name="TransferId" value="@transfer?.Id" />
+                    <input type="hidden" name="__RequestVerificationToken" value="@tokens.RequestToken" />
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">MalzemeId</label>
+                            <input name="MalzemeId" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Miktar</label>
+                            <input name="Miktar" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Seri No</label>
+                            <input name="SeriNo" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Açıklama</label>
+                            <input name="Aciklama" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mt-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary">Ekle</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnCloseAdd">Kapat</button>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.getElementById('btnShowAdd')?.addEventListener('click', function(){
+        // Satır Ekle formunu aç/kapat
+        document.getElementById('btnToggleAdd')?.addEventListener('click', function(){
             const el = document.getElementById('addLineContainer');
             el.style.display = (el.style.display === 'none' ? 'block' : 'none');
         });
+        document.getElementById('btnCloseAdd')?.addEventListener('click', function(){
+            document.getElementById('addLineContainer').style.display = 'none';
+        });
 
-        // AJAX: Satır eklendikten sonra listeyi yenile
+        // Satır ekle (AJAX)
+        document.getElementById('frmAddLine')?.addEventListener('submit', async function(e){
+            e.preventDefault();
+
+            const form = e.currentTarget;
+            const fd = new FormData(form); // Token hidden input’u da dahil
+
+            const res = await fetch('@Url.Action("AddLine", "DepoTransfer")', {
+                method: 'POST',
+                body: fd
+            });
+
+            if(res.ok){
+                await refreshLines(@transfer?.Id ?? 0);
+                form.reset();
+            } else {
+                const txt = await res.text();
+                alert('Satır eklenemedi: ' + txt);
+            }
+        });
+
+        // Satır sil (AJAX)
+        async function removeLine(detayId, transferId){
+            if(!confirm('Satır silinsin mi?')) return;
+
+            // Anti-forgery token’ı sayfadaki formdan çekelim
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+
+            const res = await fetch('@Url.Action("RemoveLine", "DepoTransfer")?transferId=' + transferId + '&detayId=' + detayId, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            });
+
+            if(res.ok){
+                await refreshLines(transferId);
+            } else {
+                alert('Satır silinemedi.');
+            }
+        }
+
+        // Satırları kısmi olarak server’dan yenile
         async function refreshLines(transferId){
             const res = await fetch('@Url.Action("GetLines", "DepoTransfer")?id=' + transferId, { method: 'GET' });
             const html = await res.text();
             document.getElementById('linesContainer').innerHTML = html;
         }
-
-        // Global’a koy
+        window.removeLine = removeLine;
         window.refreshLines = refreshLines;
     </script>
 }
-

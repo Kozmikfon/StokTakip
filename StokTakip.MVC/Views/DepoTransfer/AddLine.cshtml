@@ -1,62 +1,58 @@
 ﻿@model StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayCreateDto
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-
-<form id="addLineForm">
-    <input type="hidden" asp-for="TransferId" />
-    <div class="row g-2">
-        <div class="col-md-4">
-            <label asp-for="MalzemeId" class="form-label"></label>
-            <input asp-for="MalzemeId" class="form-control" />
-            <span asp-validation-for="MalzemeId" class="text-danger"></span>
-        </div>
-        <div class="col-md-2">
-            <label asp-for="Miktar" class="form-label"></label>
-            <input asp-for="Miktar" class="form-control" />
-            <span asp-validation-for="Miktar" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="SeriNo" class="form-label"></label>
-            <input asp-for="SeriNo" class="form-control" />
-            <span asp-validation-for="SeriNo" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Aciklama" class="form-label"></label>
-            <input asp-for="Aciklama" class="form-control" />
-            <span asp-validation-for="Aciklama" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="mt-2 d-flex gap-2">
-        <button type="submit" class="btn btn-sm btn-primary">Ekle</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary"
-                onclick="document.getElementById('addLineContainer').style.display='none'">
-            Kapat
-        </button>
-    </div>
-</form>
-
-@section Scripts {
-    <script>
-        (function(){
-            const form = document.getElementById('addLineForm');
-            form.addEventListener('submit', async function(e){
-                e.preventDefault();
-                const fd = new FormData(form);
-                const token = '@Antiforgery.GetAndStoreTokens(Context).RequestToken';
-
-                const res = await fetch('@Url.Action("AddLine", "DepoTransfer")', {
-                    method: 'POST',
-                    headers: { 'RequestVerificationToken': token },
-                    body: fd
-                });
-
-                if(res.ok){
-                    await window.refreshLines(@Model.TransferId);
-                    form.reset();
-                } else {
-                    const txt = await res.text();
-                    alert('Satır eklenemedi: ' + txt);
-                }
-            });
-        })();
-    </script>
+@{
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
 }
+<div id="addLineContainer" class="mt-3" style="display:none;">
+    <form id="frmAddLine">
+        <input type="hidden" name="TransferId" value="@Model.TransferId" />
+        <input type="hidden" name="__RequestVerificationToken" value="@tokens.RequestToken" />
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label class="form-label">MalzemeId</label>
+                <input name="MalzemeId" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Miktar</label>
+                <input name="Miktar" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Seri No</label>
+                <input name="SeriNo" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Açıklama</label>
+                <input name="Aciklama" class="form-control" />
+            </div>
+        </div>
+        <div class="mt-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary">Ekle</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnCloseAdd">Kapat</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('btnCloseAdd')?.addEventListener('click', function(){
+        document.getElementById('addLineContainer').style.display = 'none';
+    });
+
+    document.getElementById('frmAddLine')?.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const form = e.currentTarget;
+        const fd = new FormData(form); // token dahil
+
+        const res = await fetch('@Url.Action("AddLine", "DepoTransfer")', {
+            method: 'POST',
+            body: fd
+        });
+
+        if(res.ok){
+            await window.refreshLines(@Model.TransferId);
+            form.reset();
+        } else {
+            const txt = await res.text();
+            alert('Satır eklenemedi: ' + txt);
+        }
+    });
+</script>

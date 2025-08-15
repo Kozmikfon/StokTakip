@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<StokTakip.Entities.Dtos.DepoTransferDetayDtos.DepoTransferDetayDto>
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 
 <table class="table table-bordered table-sm">
     <thead>
@@ -8,9 +7,7 @@
             <th>Miktar</th>
             <th>Seri No</th>
             <th>Açıklama</th>
-            <th>Kaynak Depo</th>
-            <th>Hedef Depo</th>
-            <th></th>
+            <th class="text-end"></th>
         </tr>
     </thead>
     <tbody>
@@ -23,11 +20,7 @@
                     <td>@d.Miktar</td>
                     <td>@d.SeriNo</td>
                     <td>@d.Aciklama</td>
-                    <td>@d.KaynakDepoAdi</td>
-                    <td>@d.HedefDepoAdi</td>
                     <td class="text-end">
-                        @* Sadece Taslakta sil butonunu göstermek istersen parent’tan bool taşıyabilirsin; 
-                       burada örnek olarak data- attr ile TransferId bekliyoruz *@
                         <button class="btn btn-sm btn-outline-danger"
                                 onclick="removeLine(@d.Id, @d.TransferId)">
                             Sil
@@ -42,14 +35,21 @@
 <script>
     async function removeLine(detayId, transferId){
         if(!confirm('Satır silinsin mi?')) return;
+
+        // token'ı sayfadaki formdan al
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenInput ? tokenInput.value : '';
+
         const res = await fetch('@Url.Action("RemoveLine", "DepoTransfer")?transferId=' + transferId + '&detayId=' + detayId, {
             method: 'POST',
-            headers: { 'RequestVerificationToken': '@Antiforgery.GetAndStoreTokens(Context).RequestToken' }
+            headers: { 'RequestVerificationToken': token }
         });
+
         if(res.ok){
             await window.refreshLines(transferId);
         } else {
             alert('Satır silinemedi.');
         }
     }
+    window.removeLine = removeLine;
 </script>
